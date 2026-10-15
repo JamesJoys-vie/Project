@@ -1,0 +1,18 @@
+flowchart LR
+  FE[React SPA via nginx] --> GW[API Gateway]
+  GW --> US[User Service]
+  GW --> PS[Payment Service]
+  GW --> TS[Tuition Service]
+  PS -- REST reserve/commit/release --> TS
+  PS -- REST issue/verify --> OTP[OTP Service]
+  PS -- outbox relay: XADD payment.completed --> RS
+  OTP -- XADD otp.requested --> RS
+  RS -- XREADGROUP / XACK --> NS[Notification Service] --> SMTP[(SMTP)]
+  OTP -- OTP keys with TTL --> R
+  US --> DB1[(MySQL users_db)]
+  PS --> DB2[(MySQL payments_db)]
+  TS --> DB3[(MySQL tuition_db)]
+  subgraph REDIS [Redis 7 - AOF on]
+    R[(OTP store)]
+    RS[(Streams: events:*)]
+  end

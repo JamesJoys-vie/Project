@@ -1,0 +1,12 @@
+erDiagram
+  USERS { string id PK; string username UK; string password_hash; string full_name; string phone; string email }
+  ACCOUNTS { string id PK; string user_id UK; decimal balance; int version }
+  TRANSACTIONS { string id PK; string account_id FK; string payer_user_id; string student_id; string tuition_id; decimal amount; string status; string idempotency_key UK; string failure_reason; datetime created_at; datetime completed_at }
+  LEDGER_ENTRIES { string id PK; string account_id FK; string transaction_id FK; string type; decimal amount; decimal balance_after; datetime created_at }
+  OUTBOX_EVENTS { string id PK; string type; json payload; bool published; datetime created_at }
+  STUDENTS { string student_id PK; string full_name }
+  TUITIONS { string id PK; string student_id FK; string term; decimal amount; string status; string reserved_by_txn; datetime reserved_until; string paid_by_txn UK; int version }
+  USERS ||--|| ACCOUNTS : "owns (logical ref)"
+  ACCOUNTS ||--o{ TRANSACTIONS : makes
+  TRANSACTIONS ||--o| LEDGER_ENTRIES : records
+  STUDENTS ||--o{ TUITIONS : has
