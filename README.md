@@ -22,7 +22,7 @@ event bus (Redis Streams + consumer groups, AOF persistence). No separate messag
 4. Open http://localhost:8080 (demo logins alice/bob/carol, password `Password123!`)
 5. Public demo: set `NGROK_AUTHTOKEN` + `NGROK_DOMAIN` in `.env`, then `docker compose --profile public up -d`.
 
-Status: backend implemented (Phase 3: login, tuition lookup, OTP, payment saga, outbox, expiry/reconcile, rate limits);
-frontend payment flow is next (Phase 4). See `docs/SCAFFOLD_LOG.md` section 10.
+Status: backend (Phase 3) and frontend payment flow (Phase 4: home, pay + OTP, result, history) implemented.
+See `docs/SCAFFOLD_LOG.md` sections 10-11. Frontend dev server: `npm --prefix frontend run dev` (http://localhost:5173).
 Without SMTP settings in `.env`, emails (incl. OTPs) are printed by `docker compose logs notification-service`.
 Concurrency check on a freshly seeded stack: `python tests/load/race_check.py` (needs `pip install httpx`).

@@ -148,3 +148,29 @@ All 501 stubs replaced. Branch `phase-3-backend`.
   reconciler (tuition-service stopped during verify -> PROCESSING -> SUCCESS after restart);
   expiry (`OTP_TTL_SECONDS=20`: PENDING_OTP -> EXPIRED, tuition back to UNPAID, verify -> 410);
   login rate limit (11th attempt -> 429 + Retry-After).
+
+## 11. Phase 4 - frontend payment flow
+Phase 3 committed first (`d45c50a`). All placeholder pages replaced, following `docs/wireframes/wireframes.html`.
+- **Shell / routing**: `AppLayout` (logo, Home / Pay tuition / History nav, eye toggle, user name, Sign out) wraps every
+  protected route; new `/home` is the landing page and the catch-all target. A 401 on any call except login signs the
+  user out (and clears the React Query cache so the next user never sees old data).
+- **Hide / show amounts**: `AmountVisibility` context (localStorage, hidden by default) + `Money` / `EyeToggle` in
+  `components/ui.jsx`; every ₫ value goes through `Money`.
+- **Home**: balance tile, successful / not-completed counts and last 5 rows, all from one cached `GET /transactions`;
+  "Waiting for OTP" card with live countdown, Cancel (confirm) and Resume (`/pay?resume=<id>` reopens the OTP modal).
+- **/pay**: Payer card (read-only), Tuition card (MSSV debounced 400 ms, 404 / PAID / RESERVED states inline), Confirm card
+  (enable rule: UNPAID + balance >= amount + terms; reason shown above the button, incl. "you need X more").
+  One Idempotency-Key per attempt: reused when the same attempt is retried after a network/5xx error, replaced after
+  409/422/404, after any outcome, or when the MSSV changes.
+- **OTP modal**: 6 boxes (auto-advance, paste/autofill, Backspace), expiry countdown, 30 s resend cooldown (429 uses
+  `Retry-After`), inline 400 errors, 410/409 hand over to the result view, ✕ / Cancel ask before `POST /cancel`,
+  no backdrop close. PROCESSING is polled via `GET /transactions/{id}` for up to ~30 s.
+- **Result**: success (new balance from `balance_after`), processing, or failed / expired / cancelled with the reason.
+- **History**: client-side MSSV + status filters, 10 rows per page, empty / loading / error states, horizontal scroll on mobile.
+- Dev: `.claude/launch.json` runs `npm --prefix frontend run dev` (Vite on :5173, proxies `/api` to :8080).
+- **Verified in the browser** against the running stack (OTP read from the log with `SMTP_USER=` override, restored after):
+  login, Home, 404 / paid / insufficient lookup states, wrong OTP (attempts left), cancel (tuition back to UNPAID),
+  full success (balance 73M -> 72M), resume from Home, resend 429 + cooldown, History filters, mobile width, `vite build`,
+  rebuilt `web` container on :8080. Two test tuitions were added to the dev DB for this (MSSV 52100098 / 52100099);
+  a fresh volume + seed removes them.
+- Not done: row-click details in History (optional in the wireframe), automated frontend tests.
