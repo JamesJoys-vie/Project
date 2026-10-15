@@ -1,9 +1,6 @@
 """Seed demo data into the three service databases (idempotent: skips rows that already exist).
 Run:  docker compose --profile tools run --rm seed      (after `docker compose up -d` so migrations have run)
-Developer top-up (demo only, not a user feature):
-      docker compose --profile tools run --rm seed topup bob 50000000
 User ids are deterministic (uuid5) so users_db.users.id matches payments_db.accounts.user_id."""
-import argparse
 import os
 import uuid
 from decimal import Decimal
@@ -54,37 +51,5 @@ def main():
     print("Seeded. Demo logins: alice / bob / carol  (password: Password123!)")
 
 
-def topup(username, amount):
-    """Add `amount` to a user's balance. Bumps `version` so in-flight optimistic-lock updates see the change."""
-    if amount <= 0:
-        raise SystemExit("amount must be > 0")
-    users = create_engine(os.environ["USERS_DB_URL"])
-    pay = create_engine(os.environ["PAYMENTS_DB_URL"])
-
-    with users.connect() as c:
-        row = c.execute(text("SELECT id FROM users WHERE username=:u"), {"u": username}).first()
-    if not row:
-        raise SystemExit(f"unknown user: {username}")
-
-    with pay.begin() as c:
-        updated = c.execute(text("UPDATE accounts SET balance = balance + :a, version = version + 1 WHERE user_id = :u"),
-                            {"a": amount, "u": row.id}).rowcount
-        if not updated:
-            raise SystemExit(f"no account for {username} (run the seed first)")
-        balance = c.execute(text("SELECT balance FROM accounts WHERE user_id = :u"), {"u": row.id}).scalar_one()
-
-    print(f"Topped up {username} by {amount:,}. New balance: {balance:,}")
-
-
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Seed demo data, or top up a demo account.")
-    sub = parser.add_subparsers(dest="cmd")
-    p_top = sub.add_parser("topup", help="add money to a user's balance (developer/demo use only)")
-    p_top.add_argument("username")
-    p_top.add_argument("amount", type=Decimal)
-    args = parser.parse_args()
-
-    if args.cmd == "topup":
-        topup(args.username, args.amount)
-    else:
-        main()
+    main()

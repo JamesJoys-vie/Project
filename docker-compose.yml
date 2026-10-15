@@ -80,12 +80,15 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: mysql+pymysql://payment_svc:${PAYMENT_DB_PASSWORD}@mysql:3306/payments_db
+      USER_SERVICE_URL: http://user-service:8000
       TUITION_SERVICE_URL: http://tuition-service:8000
       OTP_SERVICE_URL: http://otp-service:8000
       REDIS_URL: redis://redis:6379/0
+      OTP_TTL_SECONDS: ${OTP_TTL_SECONDS:-300}
     depends_on:
       mysql: { condition: service_healthy }
       redis: { condition: service_healthy }
+      user-service: { condition: service_healthy }
       tuition-service: { condition: service_healthy }
       otp-service: { condition: service_healthy }
     healthcheck: *svc-health
@@ -112,7 +115,9 @@ services:
       USER_SERVICE_URL: http://user-service:8000
       TUITION_SERVICE_URL: http://tuition-service:8000
       PAYMENT_SERVICE_URL: http://payment-service:8000
+      REDIS_URL: redis://redis:6379/0   # rate-limit counters
     depends_on:
+      redis: { condition: service_healthy }
       user-service: { condition: service_healthy }
       tuition-service: { condition: service_healthy }
       payment-service: { condition: service_healthy }

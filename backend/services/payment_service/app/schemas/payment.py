@@ -30,3 +30,7 @@ class VerifyOtpRequest(BaseModel):
 class TransactionResult(BaseModel):
     transaction: TransactionOut
     balance_after: Decimal | None = None
+
+
+class ResendOtpResult(BaseModel):
+    otp_expires_in: int

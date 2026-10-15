@@ -20,7 +20,9 @@ event bus (Redis Streams + consumer groups, AOF persistence). No separate messag
 2. `docker compose up -d --build`
 3. `docker compose --profile tools run --rm seed`
 4. Open http://localhost:8080 (demo logins alice/bob/carol, password `Password123!`)
-   Demo top-up (developer only): `docker compose --profile tools run --rm seed topup bob 50000000`
 5. Public demo: set `NGROK_AUTHTOKEN` + `NGROK_DOMAIN` in `.env`, then `docker compose --profile public up -d`.
 
-Status: scaffold only - business endpoints return 501. See `docs/SCAFFOLD_LOG.md`.
+Status: backend (Phase 3) and frontend payment flow (Phase 4: home, pay + OTP, result, history) implemented.
+See `docs/SCAFFOLD_LOG.md` sections 10-11. Frontend dev server: `npm --prefix frontend run dev` (http://localhost:5173).
+Without SMTP settings in `.env`, emails (incl. OTPs) are printed by `docker compose logs notification-service`.
+Concurrency check on a freshly seeded stack: `python tests/load/race_check.py` (needs `pip install httpx`).
