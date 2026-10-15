@@ -167,7 +167,7 @@ Phase 3 committed first (`d45c50a`). All placeholder pages replaced, following `
   no backdrop close. PROCESSING is polled via `GET /transactions/{id}` for up to ~30 s.
 - **Result**: success (new balance from `balance_after`), processing, or failed / expired / cancelled with the reason.
 - **History**: client-side MSSV + status filters, 10 rows per page, empty / loading / error states, horizontal scroll on mobile.
-- Dev: `.claude/launch.json` runs `npm --prefix frontend run dev` (Vite on :5173, proxies `/api` to :8080).
+- Dev: `npm --prefix frontend run dev` (Vite on :5173, proxies `/api` to :8080).
 - **Verified in the browser** against the running stack (OTP read from the log with `SMTP_USER=` override, restored after):
   login, Home, 404 / paid / insufficient lookup states, wrong OTP (attempts left), cancel (tuition back to UNPAID),
   full success (balance 73M -> 72M), resume from Home, resend 429 + cooldown, History filters, mobile width, `vite build`,
