@@ -1,12 +1,17 @@
 from datetime import datetime
 from decimal import Decimal
-from sqlalchemy import String, DateTime, Integer, Numeric, Boolean, JSON, ForeignKey, CheckConstraint, func
+from sqlalchemy import (String, DateTime, Integer, Numeric, Boolean, JSON, ForeignKey, CheckConstraint, UniqueConstraint,
+                        func)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from shared.db import new_id
 
 # Transaction lifecycle
 PENDING_OTP, PROCESSING, SUCCESS, FAILED, CANCELLED, EXPIRED = (
     "PENDING_OTP", "PROCESSING", "SUCCESS", "FAILED", "CANCELLED", "EXPIRED")
+# PENDING_OTP --verify ok--> PROCESSING (money debited) --tuition committed--> SUCCESS
+#     |                           +--tuition commit refused--> FAILED (refunded with a CREDIT entry)
+#     +--cancel--> CANCELLED   +--expires_at passed--> EXPIRED   +--reserve/OTP/balance failure--> FAILED
+DEBIT, CREDIT = "DEBIT", "CREDIT"
 
 
 class Base(DeclarativeBase):
@@ -34,15 +39,18 @@ class Transaction(Base):
     idempotency_key: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
     failure_reason: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)  # UTC; pushed forward by resend-otp
     completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
 
 class LedgerEntry(Base):
     __tablename__ = "ledger_entries"
+    # at most one DEBIT and one CREDIT (refund) per transaction -> a payment can never be charged twice
+    __table_args__ = (UniqueConstraint("transaction_id", "type", name="uq_ledger_txn_type"),)
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
     account_id: Mapped[str] = mapped_column(ForeignKey("accounts.id"), nullable=False)
-    transaction_id: Mapped[str] = mapped_column(ForeignKey("transactions.id"), nullable=False, unique=True)  # one debit per txn
-    type: Mapped[str] = mapped_column(String(10), nullable=False)  # DEBIT
+    transaction_id: Mapped[str] = mapped_column(ForeignKey("transactions.id"), nullable=False)
+    type: Mapped[str] = mapped_column(String(10), nullable=False)  # DEBIT | CREDIT
     amount: Mapped[Decimal] = mapped_column(Numeric(15, 2), nullable=False)
     balance_after: Mapped[Decimal] = mapped_column(Numeric(15, 2), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())

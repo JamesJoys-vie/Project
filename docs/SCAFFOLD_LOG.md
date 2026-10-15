@@ -105,6 +105,46 @@ Note: entries in sections 1-6 above that mention RabbitMQ describe the earlier s
   `AmountVisibility` context + `EyeToggle`. Visual privacy only, values are still in API responses. The wireframe page has a
   working preview switch in its top bar.
 
-## 9. Developer top-up
-- `backend/scripts/seed.py topup <username> <amount>`: adds to a demo balance (bumps `version`). Developer/demo tool only;
-  account top-up is deliberately not a user feature (future work). Run: `docker compose --profile tools run --rm seed topup bob 50000000`.
+## 10. Phase 3 - backend business logic
+All 501 stubs replaced. Branch `phase-3-backend`.
+- **user-service**: `POST /auth/login` (bcrypt; unknown usernames still pay one bcrypt check so timing does not leak
+  which usernames exist), `GET /users/me`, new internal `GET /internal/users/{id}` (payer email/name for emails).
+- **tuition-service**: `GET /tuitions/{mssv}` (oldest unpaid term, else latest PAID; a hold past `reserved_until`
+  is reported as UNPAID). `reserve / commit / release` are each ONE conditional `UPDATE ... WHERE status=...`
+  (compare-and-set), idempotent for the same transaction. Times are Python UTC, never MySQL `NOW()`.
+  `reserve` also extends the hold when called again by the same txn (used by resend-otp).
+  `commit` ignores `reserved_until` on purpose: once money moved, the commit must not lose to the clock.
+- **otp-service**: Lua scripts for save (code-uniqueness key `SET NX`, old code dropped on resend) and verify
+  (compare-and-delete = single-use; 5 wrong codes burn the OTP). Only SHA-256 of the code is stored.
+  Issue limits per transaction: 30 s cooldown, max 4 OTPs. Publishes `otp.requested`.
+- **notification-service**: consumer enabled (auto-restarts on Redis errors); dedupe `notif:sent:<type>:<id> NX`
+  (OTP dedupe id includes the code hash so a resend still mails). **Without SMTP settings the email is written to
+  the container log instead** (dev fallback: `docker compose logs notification-service`).
+- **payment-service** (`app/domain/saga.py`, routes are thin):
+  - initiate: idempotency key replay -> tuition lookup + unlocked balance pre-check (422) -> insert PENDING_OTP
+    -> reserve (409 / compensation FAILED) -> OTP (compensation: release + FAILED).
+  - verify: OTP -> ONE MySQL txn (lock txn row, lock account row, re-check balance, debit, DEBIT ledger,
+    PROCESSING) -> tuition commit -> ONE MySQL txn (SUCCESS + outbox `payment.completed`).
+    Commit 409 -> refund (CREDIT ledger entry, FAILED). Commit unreachable -> stays PROCESSING, the reconciler retries.
+  - Business outcomes of verify are 200 with `status` SUCCESS / FAILED (+`failure_reason`) / PROCESSING.
+  - Lock order always transaction -> account; MySQL 1213/1205 retried up to 3x (`run_in_tx`).
+  - resend-otp extends the tuition hold, issues a new OTP, restarts `expires_at`. cancel is idempotent.
+  - New `GET /transactions/{id}` (poll PROCESSING / resume PENDING_OTP).
+  - Workers started on app startup: outbox relay (`FOR UPDATE SKIP LOCKED`), expiry + reconcile job (every 15 s).
+  - Migration **0002**: `transactions.expires_at` (+ index with status); ledger unique key `(transaction_id, type)`
+    replaces `unique(transaction_id)` so one refund is possible but a double charge still is not.
+  - *Refinement vs. plan*: the outbox event is written with the SUCCESS status change (after the tuition commit),
+    not with the debit, so a receipt is never mailed for a payment that ends up refunded.
+- **gateway**: Redis fixed-window rate limits (see `docs/api/endpoints.md`), fails open if Redis is down;
+  `Retry-After` from upstream is passed through. Compose: gateway gets `REDIS_URL`, payment-service gets
+  `USER_SERVICE_URL` + `OTP_TTL_SECONDS`.
+- **Tests**: `services/otp_service/tests/test_otp_store.py` (real Redis), `tests/load/race_check.py`
+  (same student / same account / idempotency / double submit, against the running stack).
+- **Fix found while testing**: redis-py 8 defaults `socket_timeout` to 5 s = the blocking `XREADGROUP` wait, so the
+  notification consumer crashed every few seconds. `shared/redis_client.py` now sets `socket_timeout=30` explicitly.
+- **Verified on the real stack** (fresh volumes + seed, emails to the log via `SMTP_USER=` override):
+  migrations 0001 + 0002 apply; every endpoint and error path (401/404/409/410/422/429, other user's txn -> 404);
+  OTP + receipt emails; outbox row published; ledger DEBIT; `race_check.py` 5/5; OTP store unit tests 8/8;
+  reconciler (tuition-service stopped during verify -> PROCESSING -> SUCCESS after restart);
+  expiry (`OTP_TTL_SECONDS=20`: PENDING_OTP -> EXPIRED, tuition back to UNPAID, verify -> 410);
+  login rate limit (11th attempt -> 429 + Retry-After).

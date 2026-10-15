@@ -18,3 +18,5 @@ class VerifyOtpRequest(BaseModel):
 
 class VerifyOtpResponse(BaseModel):
     valid: bool
+    reason: str | None = None  # invalid | expired | locked  (when valid is False)
+    attempts_left: int | None = None
