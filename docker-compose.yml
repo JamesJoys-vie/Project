@@ -12,7 +12,8 @@ services:
   mysql:
     image: mysql:8.0
     restart: unless-stopped
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    # max-connections: user + tuition (30 each) + payment (4 workers x 15) + seed/tools, with headroom
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=300
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       USER_DB_PASSWORD: ${USER_DB_PASSWORD}
@@ -85,6 +86,10 @@ services:
       OTP_SERVICE_URL: http://otp-service:8000
       REDIS_URL: redis://redis:6379/0
       OTP_TTL_SECONDS: ${OTP_TTL_SECONDS:-300}
+      # CPU-bound under load (Phase 5): several processes. Workers (outbox relay, expiry job) are replica-safe.
+      UVICORN_WORKERS: ${PAYMENT_WORKERS:-4}
+      DB_POOL_SIZE: 5
+      DB_MAX_OVERFLOW: 10
     depends_on:
       mysql: { condition: service_healthy }
       redis: { condition: service_healthy }
