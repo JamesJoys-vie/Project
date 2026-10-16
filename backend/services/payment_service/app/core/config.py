@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     http_timeout_seconds: float = 5.0
     expiry_interval_seconds: float = 15.0  # how often the expiry / reconcile job runs
     processing_retry_after_seconds: int = 15  # PROCESSING older than this -> reconciler retries the tuition commit
+    # Request threads mostly wait on other services (DB connections are returned before every remote call),
+    # so more threads than pooled DB connections is fine; a thread that cannot get a connection gets 503 after 5 s.
+    threadpool_size: int = 100
 
 
 settings = Settings()

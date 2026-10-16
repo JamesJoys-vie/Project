@@ -17,6 +17,8 @@ Concurrency rules:
     that still happen are retried (`run_in_tx`).
   * Overdraft is impossible: the balance check and the debit happen under the account row lock
     (SELECT ... FOR UPDATE), and the CHECK (balance >= 0) constraint is the last line of defence.
+  * No DB connection is held while waiting on another service: reads are finished with `end_read` before
+    every remote call (found by the Phase 5 load test: holding connections across HTTP calls drained the pool).
 """
 import logging
 import time
@@ -40,6 +42,12 @@ TX_ATTEMPTS = 3
 
 def utcnow() -> datetime:
     return datetime.now(timezone.utc).replace(tzinfo=None)
+
+
+def end_read(db: Session) -> None:
+    """End the current read-only transaction so its pooled connection is returned BEFORE a slow remote call.
+    Loaded objects stay usable (expire_on_commit=False). Only call it with no pending changes."""
+    db.commit()
 
 
 def run_in_tx(db: Session, fn, attempts: int = TX_ATTEMPTS):
@@ -82,12 +90,12 @@ def _transition(db: Session, txn_id: str, frm: str, to: str, reason: str | None 
     return changed
 
 
-def _release(t: Transaction) -> None:
+def _release(tuition_id: str, txn_id: str) -> None:
     """Best effort: a hold that is not released expires on its own (tuition `reserved_until`)."""
     try:
-        clients.release_tuition(t.tuition_id, t.id)
+        clients.release_tuition(tuition_id, txn_id)
     except UpstreamError as e:
-        log.warning("release of tuition %s for txn %s failed: %s", t.tuition_id, t.id, e)
+        log.warning("release of tuition %s for txn %s failed: %s", tuition_id, txn_id, e)
 
 
 def _payer(user_id: str) -> dict:
@@ -102,8 +110,9 @@ def _is_overdue(t: Transaction) -> bool:
 
 
 def expire(db: Session, t: Transaction) -> bool:
-    if _transition(db, t.id, PENDING_OTP, EXPIRED, "OTP was not confirmed in time"):
-        _release(t)
+    tuition_id, txn_id = t.tuition_id, t.id
+    if _transition(db, txn_id, PENDING_OTP, EXPIRED, "OTP was not confirmed in time"):
+        _release(tuition_id, txn_id)
         return True
     return False
 
@@ -150,12 +159,19 @@ def initiate(db: Session, user_id: str, idempotency_key: str, student_id: str) -
     account = db.scalar(select(Account).where(Account.user_id == user_id))
     if account is None:
         raise HTTPException(404, "No payment account for this user")
+    end_read(db)
     try:
         tuition = clients.get_tuition(student_id)
     except UpstreamError as e:
         if e.status == 404:
             raise HTTPException(404, e.detail)
         raise HTTPException(502, "Tuition service unavailable, try again")
+    if tuition["status"] in ("PAID", "RESERVED"):
+        # A duplicate of this request (same key) may have been created and reserved the tuition after our
+        # first key check: answer with that transaction, not "being paid elsewhere" (found by the Phase 5 load test).
+        raced = db.scalar(select(Transaction).where(Transaction.idempotency_key == idempotency_key))
+        if raced is not None:
+            return _replay(raced, user_id)
     if tuition["status"] == "PAID":
         raise HTTPException(409, "Tuition for this student is already paid")
     if tuition["status"] == "RESERVED":
@@ -176,6 +192,7 @@ def initiate(db: Session, user_id: str, idempotency_key: str, student_id: str) -
         db.rollback()
         return _replay(db.scalar(select(Transaction).where(Transaction.idempotency_key == idempotency_key)), user_id)
     db.refresh(t)  # load server-side defaults (created_at)
+    end_read(db)
 
     try:
         clients.reserve_tuition(t.tuition_id, t.id)
@@ -190,8 +207,9 @@ def initiate(db: Session, user_id: str, idempotency_key: str, student_id: str) -
     try:
         clients.issue_otp(t.id, payer["email"], payer["full_name"])
     except UpstreamError:
-        _transition(db, t.id, PENDING_OTP, FAILED, "Could not send OTP")
-        _release(t)
+        tuition_id, txn_id = t.tuition_id, t.id  # read before _transition expires the object
+        _transition(db, txn_id, PENDING_OTP, FAILED, "Could not send OTP")
+        _release(tuition_id, txn_id)
         raise HTTPException(502, "Could not send the OTP, try again")
     return t
 
@@ -214,6 +232,7 @@ def verify(db: Session, user_id: str, txn_id: str, otp: str) -> Transaction:
         raise HTTPException(410, "Transaction expired")
     if t.status != PENDING_OTP:
         raise HTTPException(409, f"Transaction is {t.status}")
+    end_read(db)
 
     payer = _payer(user_id)  # before the OTP is consumed, so an outage here does not burn the code
     try:
@@ -242,7 +261,7 @@ def verify(db: Session, user_id: str, txn_id: str, otp: str) -> Transaction:
     if t.status == PROCESSING:
         return complete(db, t, payer)
     if t.status == FAILED:
-        _release(t)
+        _release(t.tuition_id, t.id)
         return t
     if t.status == EXPIRED:
         raise HTTPException(410, "Transaction expired")
@@ -298,6 +317,7 @@ def resend_otp(db: Session, user_id: str, txn_id: str) -> int:
         raise HTTPException(410, "Transaction expired")
     if t.status != PENDING_OTP:
         raise HTTPException(409, f"Transaction is {t.status}")
+    end_read(db)
     payer = _payer(user_id)
     try:
         clients.reserve_tuition(t.tuition_id, t.id)  # same txn -> idempotent; pushes reserved_until forward
@@ -326,7 +346,8 @@ def cancel(db: Session, user_id: str, txn_id: str) -> Transaction:
     t = get_owned(db, txn_id, user_id)
     if t.status == CANCELLED:
         return t  # idempotent
+    tuition_id = t.tuition_id  # read before _transition expires the object (a reload would take a connection)
     if t.status != PENDING_OTP or not _transition(db, t.id, PENDING_OTP, CANCELLED, "Cancelled by user"):
         raise HTTPException(409, f"Transaction is {db.get(Transaction, txn_id, populate_existing=True).status}")
-    _release(t)
+    _release(tuition_id, txn_id)  # _transition committed: no connection held during the call
     return db.get(Transaction, txn_id, populate_existing=True)
