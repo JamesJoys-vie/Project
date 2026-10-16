@@ -19,7 +19,7 @@ def _profile(user: User) -> UserProfile:
 
 
 @router.post("/auth/login", response_model=TokenResponse, responses={401: {"description": "Invalid credentials"}})
-def login(body: LoginRequest, db: Session = Depends(get_db)):
+def login(body: LoginRequest, db: Session = Depends(get_db, scope="function")):
     user = db.scalar(select(User).where(User.username == body.username))
     try:
         ok = verify_password(body.password, user.password_hash if user else _DUMMY_HASH)
@@ -32,7 +32,7 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
 
 
 @router.get("/users/me", response_model=UserProfile, responses={401: {"description": "Unauthenticated"}})
-def me(x_user_id: str = Header(...), db: Session = Depends(get_db)):
+def me(x_user_id: str = Header(...), db: Session = Depends(get_db, scope="function")):
     """Profile of the user id injected by the gateway (X-User-Id). Read-only for the client."""
     user = db.get(User, x_user_id)
     if user is None:  # token for a user that no longer exists
@@ -42,7 +42,7 @@ def me(x_user_id: str = Header(...), db: Session = Depends(get_db)):
 
 # ---- internal endpoint (called by payment-service only; NOT routed by the gateway) ----
 @router.get("/internal/users/{user_id}", response_model=UserProfile, responses={404: {"description": "Not found"}})
-def get_user(user_id: str, db: Session = Depends(get_db)):
+def get_user(user_id: str, db: Session = Depends(get_db, scope="function")):
     """Payer contact details (email, name) needed for the OTP / receipt emails."""
     user = db.get(User, user_id)
     if user is None:
