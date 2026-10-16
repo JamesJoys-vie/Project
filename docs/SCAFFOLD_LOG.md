@@ -2,6 +2,10 @@
 
 Running record of what was generated and why. Newest entries at the bottom.
 
+> Sections 1-6 describe the first scaffold and are kept as history: RabbitMQ was replaced by Redis Streams (section 7),
+> the 501 stubs were implemented in Phase 3 (section 10), and migration 0002 changed the ledger key (section 10).
+> Current design: `docs/design/services.md`, `docs/api/endpoints.md`, `docs/diagrams/`.
+
 ## 1. Infrastructure
 - `docker-compose.yml`: mysql:8.0, redis:7, rabbitmq:3-management, 5 services, gateway, web (nginx + React build).
   Optional profiles: `public` (ngrok tunnel to `web:80`), `tools` (seed job).
@@ -21,6 +25,7 @@ Running record of what was generated and why. Newest entries at the bottom.
 
 ## 3. Services (backend/services/*)
 All expose `GET /health` on port 8000. Business endpoints are **typed stubs returning 501** with a TODO describing the exact logic to implement.
+*(Superseded: all stubs implemented in section 10; ledger key now `(transaction_id, type)`, see section 10.)*
 - **user_service** (`users_db`): model `users`; stubs `POST /auth/login`, `GET /users/me`; migration 0001.
 - **tuition_service** (`tuition_db`): models `students`, `tuitions` (status UNPAID/RESERVED/PAID, `version`, `reserved_until`);
   stubs `GET /tuitions/{mssv}` + internal `reserve / commit / release`; migration 0001.
@@ -37,7 +42,7 @@ All expose `GET /health` on port 8000. Business endpoints are **typed stubs retu
 ## 4. Gateway and frontend
 - **gateway** (`backend/gateway`): FastAPI reverse proxy. Routes `/api/{auth,users}` -> user, `/api/tuitions` -> tuition,
   `/api/{accounts,transactions}` -> payment. Verifies the JWT (except `POST /api/auth/login`), strips any client-sent
-  `X-User-Id` and injects the verified one. OTP/notification services are not routed (internal only). Rate limiting is a TODO.
+  `X-User-Id` and injects the verified one. OTP/notification services are not routed (internal only). Rate limiting is a TODO *(done in section 10)*.
 - **frontend** (React + JavaScript + Vite, Tailwind v4, React Query, React Hook Form, React Router):
   routing, auth context (token in sessionStorage), API client with all endpoint helpers, working Login form,
   placeholder Tuition Payment / History pages with TODO notes describing the exact UI flow.

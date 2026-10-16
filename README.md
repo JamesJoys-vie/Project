@@ -7,7 +7,7 @@
 - `backend/infra`             MySQL init script, container entrypoint
 - `backend/scripts/seed.py`   demo data
 - `frontend`                  React + JavaScript (Vite) client, served by nginx
-- `docs`                      diagrams, API table, `SCAFFOLD_LOG.md`
+- `docs`                      design (`design/services.md`), diagrams, API reference (`api/endpoints.md` + `api/openapi/`), `SCAFFOLD_LOG.md`
 - `tests`                     load/concurrency suite (`load/`: Locust, pytest races, invariant checker); e2e (`e2e/`) empty
 
 ## Infrastructure
