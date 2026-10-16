@@ -1,0 +1,7 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /transactions/[id]/cancel,"CatchResponseError('502 {""detail"":""Upstream service unavailable""}')",1,2026-10-16T06:09:42Z,2026-10-16T06:09:42Z
+GET,GET /accounts/me,"CatchResponseError('502 {""detail"":""Upstream service unavailable""}')",143,2026-10-16T06:09:41Z,2026-10-16T06:12:41Z
+POST,POST /transactions/[id]/verify-otp,"CatchResponseError('502 {""detail"":""Upstream service unavailable""}')",45,2026-10-16T06:09:40Z,2026-10-16T06:10:02Z
+POST,POST /transactions,"CatchResponseError('502 {""detail"":""User service unavailable, try again""}')",1,2026-10-16T06:09:22Z,2026-10-16T06:09:22Z
+POST,POST /transactions,"CatchResponseError('502 {""detail"":""Upstream service unavailable""}')",608,2026-10-16T06:09:39Z,2026-10-16T06:12:42Z
+GET,GET /transactions,"CatchResponseError('502 {""detail"":""Upstream service unavailable""}')",151,2026-10-16T06:09:41Z,2026-10-16T06:12:41Z

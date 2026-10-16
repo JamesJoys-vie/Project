@@ -1,0 +1,25 @@
+{
+  "checked_at": "2026-10-16T07:25:41.739241Z",
+  "transactions": {
+    "SUCCESS": 6081,
+    "FAILED": 253,
+    "CANCELLED": 88,
+    "EXPIRED": 98
+  },
+  "failed_reasons": {
+    "Tuition is already paid or being paid": 247,
+    "Insufficient balance": 6
+  },
+  "ledger_entries": 6081,
+  "net_debited": "12509100000.00",
+  "tuition_paid_total": "12509100000.00",
+  "tuitions_paid": 6081,
+  "after_settle": {
+    "processing": 0,
+    "pending_otp": 0,
+    "unpublished_outbox": 0
+  },
+  "stale_holds_warning": 0,
+  "violations": {},
+  "passed": true
+}

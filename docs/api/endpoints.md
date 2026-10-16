@@ -19,7 +19,12 @@ Other users' transactions answer 404 (never 403), so ids cannot be probed.
 Rate limits (gateway, Redis fixed window, 429 + `Retry-After`): login 10/min per IP; create transaction 20/min,
 verify-otp 10/min, resend-otp 5/min per user. otp-service adds: 30 s between OTPs of one transaction, max 4 OTPs
 (initial + 3 resends) per transaction, OTP burned after 5 wrong codes.
+`RATE_LIMIT_MULTIPLIER` (gateway env, default 1) scales the gateway limits; only the load-test override raises it.
+Any endpoint of user / tuition / payment-service can answer `503 Service busy` + `Retry-After` when its DB
+connection pool stays exhausted for 5 s (overload); retry it (`POST /transactions` with the same Idempotency-Key).
 
 Internal only (not routed by gateway): user `GET /internal/users/{id}`;
 tuition `POST /internal/tuitions/{id}/{reserve|commit|release}`; otp `POST /internal/otp`, `POST /internal/otp/verify`.
+Load tests only: otp `GET /internal/test/otp/{transaction_id}` (latest plain code) exists only when `OTP_TEST_ECHO=true`
+(set by `docker-compose.loadtest.yml`); otherwise the route is not mounted.
 Live OpenAPI docs per service: `/docs` (reachable only inside the compose network, or temporarily publish a port).
