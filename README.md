@@ -15,6 +15,8 @@ MySQL 8 (one database per service) + Redis 7 only. Redis is both the OTP store (
 event bus (Redis Streams + consumer groups, AOF persistence). No separate message broker.
 
 ## Run
+First time? Follow the step-by-step guide in [INSTRUCTION.md](INSTRUCTION.md).
+
 1. `.env` already exists (git-ignored, holds your Ngrok values). Replace the `change_me` passwords before the first run.
    On a fresh clone: `Copy-Item .env.example .env`.
 2. `docker compose up -d --build`
