@@ -8,7 +8,9 @@ from app.repositories.otp_store import OtpStore, VerifyResult
 from app.schemas.otp import IssueOtpRequest, IssueOtpResponse, VerifyOtpRequest, VerifyOtpResponse
 
 router = APIRouter()
+test_router = APIRouter()  # mounted only when OTP_TEST_ECHO=true (see app/main.py)
 MAX_GENERATION_TRIES = 20
+TEST_ECHO_PREFIX = "otp:test:"
 
 
 @lru_cache
@@ -32,6 +34,8 @@ def issue(body: IssueOtpRequest):
             break
     else:  # practically unreachable unless ~10^6 OTPs are active at once
         raise HTTPException(503, "Could not allocate a unique OTP, try again")
+    if settings.otp_test_echo:
+        s.r.set(f"{TEST_ECHO_PREFIX}{body.transaction_id}", code, ex=settings.otp_ttl_seconds)
     events.publish(s.r, events.OTP_REQUESTED, {"email": body.email, "full_name": body.full_name, "otp": code,
                                                "transaction_id": body.transaction_id,
                                                "expires_in": settings.otp_ttl_seconds})
@@ -47,3 +51,12 @@ def verify(body: VerifyOtpRequest):
         return VerifyOtpResponse(valid=True)
     left = s.attempts_left(body.transaction_id) if result is VerifyResult.INVALID else 0
     return VerifyOtpResponse(valid=False, reason=result.value, attempts_left=left)
+
+
+@test_router.get("/internal/test/otp/{transaction_id}", include_in_schema=False)
+def latest_code(transaction_id: str):
+    """LOAD TESTS ONLY: the latest plain code issued for the transaction (what the email would contain)."""
+    code = store().r.get(f"{TEST_ECHO_PREFIX}{transaction_id}")
+    if code is None:
+        raise HTTPException(404, "No OTP issued for this transaction")
+    return {"otp": code}
