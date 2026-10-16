@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     tuition_service_url: str
     payment_service_url: str
     redis_url: str  # rate-limit counters
+    rate_limit_multiplier: float = 1.0  # scales every limit below; load tests raise it (one client IP, many users)
 
 
 settings = Settings()
