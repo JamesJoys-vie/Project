@@ -21,5 +21,5 @@ def stop_consumer():
 
 
 @app.get("/health")
-def health():
+async def health():  # async: answered by the event loop even when the threadpool is saturated
     return {"status": "ok", "service": "notification-service"}
