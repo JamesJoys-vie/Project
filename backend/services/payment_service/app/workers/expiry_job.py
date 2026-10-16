@@ -22,9 +22,11 @@ BATCH = 100
 def run_once(db: Session) -> tuple[int, int]:
     overdue = db.scalars(select(Transaction).where(Transaction.status == PENDING_OTP,
                                                    Transaction.expires_at <= saga.utcnow()).limit(BATCH)).all()
+    saga.end_read(db)
     expired = sum(saga.expire(db, t) for t in overdue)
 
     stuck = db.scalars(select(Transaction).where(Transaction.status == PROCESSING).limit(BATCH)).all()
+    saga.end_read(db)  # no connection held during the user / tuition calls below
     for t in stuck:
         try:
             payer = clients.get_user(t.payer_user_id)
