@@ -15,11 +15,33 @@ USERS = [  # username, password, full name, phone, email, balance
     ("bob",   "Password123!", "Tran Thi B",   "0900000002", "bob@example.com",   Decimal("5000000")),
     ("carol", "Password123!", "Le Van C",     "0900000003", "carol@example.com", Decimal("100000000")),
 ]
-STUDENTS = [  # mssv, name, term, amount
+STUDENTS = [  # mssv, name, term, amount  (one row per unpaid term; MSSVs may contain letters, always 8 chars)
     ("52100001", "Pham Minh D", "2025-HK1", Decimal("15000000")),
     ("52100002", "Hoang Thu E", "2025-HK1", Decimal("18500000")),
     ("52100003", "Vo Quoc F",   "2025-HK1", Decimal("12000000")),
     ("52100004", "Dang Mai G",  "2025-HK1", Decimal("40000000")),  # larger than bob's balance -> insufficient-funds demo
+    # --- payment-test pool (all UNPAID) ---
+    ("521H0081", "Nguyen Thanh Long", "2025-HK1", Decimal("16500000")),
+    ("521E0001", "Tran Ngoc Anh",     "2025-HK1", Decimal("22000000")),
+    ("E2400001", "Le Hoang Nam",      "2025-HK1", Decimal("9800000")),
+    ("521H0102", "Pham Thu Trang",    "2025-HK1", Decimal("14200000")),
+    ("522H0045", "Bui Duc Huy",       "2025-HK1", Decimal("17300000")),
+    ("520K0123", "Do Minh Chau",      "2025-HK1", Decimal("11750000")),
+    ("523C0007", "Ngo Gia Bao",       "2025-HK1", Decimal("4500000")),    # bob (5M) can afford
+    ("E2300112", "Vu Khanh Linh",     "2025-HK1", Decimal("3200000")),    # bob (5M) can afford
+    ("E2400050", "Dinh Cong Thanh",   "2025-HK1", Decimal("5000000")),    # exactly bob's balance -> boundary case
+    ("521V0042", "Huynh Tan Phat",    "2025-HK1", Decimal("13600000")),
+    ("522H0099", "Kieu Anh Thu",      "2024-HK2", Decimal("9500000")),    # two unpaid terms: older term is offered first,
+    ("522H0099", "Kieu Anh Thu",      "2025-HK1", Decimal("18000000")),   #   2025-HK1 appears after it is paid
+    ("52200011", "Ly Bao Ngoc",       "2025-HK1", Decimal("12500000")),
+    ("52200012", "Mai Quoc Viet",     "2025-HK1", Decimal("19900000")),
+    ("52200013", "Trinh Hai Yen",     "2025-HK1", Decimal("8750000")),
+    ("52300021", "Duong Minh Khoa",   "2025-HK1", Decimal("21400000")),
+    ("52300022", "Cao Thi Lan",       "2025-HK1", Decimal("10300000")),
+    ("52300023", "Phan Van Tai",      "2025-HK1", Decimal("26800000")),
+    ("52400031", "Ta Thu Ha",         "2025-HK1", Decimal("7600000")),
+    ("52400032", "Lam Nhat Minh",     "2025-HK1", Decimal("15750000")),
+    ("52400033", "Chau Ngoc Tram",    "2025-HK1", Decimal("120000000")),  # more than any demo balance
 ]
 
 
@@ -48,7 +70,8 @@ def main():
                            "VALUES (:id,:s,:t,:a,'UNPAID',0)"),
                       {"id": uid("tuition-" + mssv + term), "s": mssv, "t": term, "a": amount})
 
-    print("Seeded. Demo logins: alice / bob / carol  (password: Password123!)")
+    print(f"Seeded {len({s[0] for s in STUDENTS})} students / {len(STUDENTS)} tuitions. "
+          "Demo logins: alice / bob / carol  (password: Password123!)")
 
 
 if __name__ == "__main__":

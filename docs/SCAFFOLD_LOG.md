@@ -174,3 +174,14 @@ Phase 3 committed first (`d45c50a`). All placeholder pages replaced, following `
   rebuilt `web` container on :8080. Two test tuitions were added to the dev DB for this (MSSV 52100098 / 52100099);
   a fresh volume + seed removes them.
 - Not done: row-click details in History (optional in the wireframe), automated frontend tests.
+
+## 11. More seed students (payment-test pool)
+- `backend/scripts/seed.py`: 20 more UNPAID students (24 students / 25 tuitions in total). MSSVs are 8 characters and may
+  contain letters (`521H0081`, `521E0001`, `E2400001`, `522H0045`, `520K0123`, `523C0007`, `E2300112`, `E2400050`,
+  `521V0042`, `521H0102`, `522H0099`) alongside numeric ones (`522000xx`, `523000xx`, `524000xx`).
+  Built-in cases: `523C0007` / `E2300112` are affordable for bob (5M); `E2400050` = exactly 5M (boundary);
+  `522H0099` has two unpaid terms (2024-HK2 offered first, then 2025-HK1); `52400033` = 120M (more than any balance).
+  Re-running the seed on an existing database only adds missing rows (`INSERT IGNORE`).
+- Lookup is case-insensitive (`521h0081` finds `521H0081`) via the MySQL `utf8mb4_unicode_ci` collation.
+- Frontend: MSSV inputs no longer force a numeric phone keyboard (`inputMode="numeric"` -> `autoCapitalize`),
+  hint text mentions letters, history search by MSSV is case-insensitive.

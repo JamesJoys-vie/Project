@@ -25,7 +25,7 @@ export default function HistoryTable({ transactions, loading, compact = false })
   const filtered = useMemo(() => {
     const list = transactions || []
     if (compact) return list.slice(0, 5)
-    return list.filter((t) => (!mssv || t.student_id.includes(mssv.trim())) && (!status || t.status === status))
+    return list.filter((t) => (!mssv || t.student_id.toUpperCase().includes(mssv.trim().toUpperCase())) && (!status || t.status === status))
   }, [transactions, compact, mssv, status])
 
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
@@ -42,7 +42,7 @@ export default function HistoryTable({ transactions, loading, compact = false })
             value={mssv}
             onChange={(e) => { setMssv(e.target.value); setPage(1) }}
             placeholder="Search by MSSV"
-            inputMode="numeric"
+            autoCapitalize="characters"
             className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 sm:max-w-xs"
           />
           <select
