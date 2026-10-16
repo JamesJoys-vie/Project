@@ -33,7 +33,7 @@ def _info(t: Tuition, student: Student, now: datetime) -> TuitionInfo:
 
 
 @router.get("/tuitions/{student_id}", response_model=TuitionInfo, responses={404: {"description": "Student/tuition not found"}})
-def get_tuition(student_id: str, db: Session = Depends(get_db)):
+def get_tuition(student_id: str, db: Session = Depends(get_db, scope="function")):
     """Public (via gateway, authenticated). The student's outstanding tuition (oldest unpaid term first);
     if everything is paid, the latest PAID one so the UI can say "already paid"."""
     student = db.get(Student, student_id.strip())
@@ -60,7 +60,7 @@ def _get_or_404(db: Session, tuition_id: str) -> Tuition:
 
 @router.post("/internal/tuitions/{tuition_id}/reserve", response_model=TuitionInfo,
              responses={404: {"description": "Not found"}, 409: {"description": "Already reserved/paid"}})
-def reserve(tuition_id: str, body: ReserveRequest, db: Session = Depends(get_db)):
+def reserve(tuition_id: str, body: ReserveRequest, db: Session = Depends(get_db, scope="function")):
     """Hold the tuition for one transaction until reserved_until. Idempotent for the same transaction."""
     now = utcnow()
     res = db.execute(
@@ -82,7 +82,7 @@ def reserve(tuition_id: str, body: ReserveRequest, db: Session = Depends(get_db)
 
 @router.post("/internal/tuitions/{tuition_id}/commit", status_code=200,
              responses={404: {"description": "Not found"}, 409: {"description": "Not reserved by this transaction"}})
-def commit(tuition_id: str, body: CommitRequest, db: Session = Depends(get_db)):
+def commit(tuition_id: str, body: CommitRequest, db: Session = Depends(get_db, scope="function")):
     """RESERVED(by this txn) -> PAID. Idempotent if already PAID by the same txn.
     Deliberately ignores reserved_until: once the payer's money moved, an in-flight commit must not lose to the clock.
     (Another txn can only take the hold after expiry; payment-service rejects OTPs long before that.)"""
@@ -101,7 +101,7 @@ def commit(tuition_id: str, body: CommitRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/internal/tuitions/{tuition_id}/release", status_code=200, responses={404: {"description": "Not found"}})
-def release(tuition_id: str, body: ReserveRequest, db: Session = Depends(get_db)):
+def release(tuition_id: str, body: ReserveRequest, db: Session = Depends(get_db, scope="function")):
     """RESERVED(by this txn) -> UNPAID (saga compensation). Idempotent: no-op if the hold is gone or belongs to someone else."""
     res = db.execute(
         update(Tuition)

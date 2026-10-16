@@ -185,3 +185,37 @@ Phase 3 committed first (`d45c50a`). All placeholder pages replaced, following `
 - Lookup is case-insensitive (`521h0081` finds `521H0081`) via the MySQL `utf8mb4_unicode_ci` collation.
 - Frontend: MSSV inputs no longer force a numeric phone keyboard (`inputMode="numeric"` -> `autoCapitalize`),
   hint text mentions letters, history search by MSSV is case-insensitive.
+
+## 12. Phase 5 - load and concurrency tests
+Branch `phase-5-load-tests`. Full results and analysis: `docs/reports/LOAD_TEST_REPORT.md`.
+- **Test-only hooks**, enabled only by `docker-compose.loadtest.yml` (layered on the normal compose file):
+  otp-service `OTP_TEST_ECHO` keeps the plain code in Redis (`otp:test:<txn>`, same TTL) and mounts
+  `GET /internal/test/otp/{id}` (route absent otherwise); gateway `RATE_LIMIT_MULTIPLIER` (x1000 there);
+  OTP 60 s / hold 120 s; SMTP blanked so load never reaches a real inbox.
+- **`tests/` toolbox image** (profile `loadtest`, `./tests` mounted, results in `docs/reports/<run>/`):
+  - `lt_data.py`: seed / reset of separate load-test data (`lt-` users, `LT` students, 30k tuitions; a student with many
+    terms is a queue because lookup offers the oldest unpaid term). Reset restores balances and tuitions.
+  - `locustfile.py`: Payer / HotStudent / SharedAccount users, misbehaving flows, business outcomes tallied in `outcomes.json`.
+  - `verify_invariants.py`: waits for the background jobs, then checks I1-I8 (money, ledger, tuition, outbox, stuck) from
+    the databases.
+  - `test_races.py`: the old `race_check.py` as pytest (5 scenarios x 5 rounds, own small data pool, OTP from the hook);
+    adds cancel-vs-verify. `race_check.py` removed.
+  - `run_level.sh`: reset -> Locust headless -> invariants.
+- **Bugs found by the load test and fixed** (details and before/after numbers in the report):
+  1. payment-service held DB connections across HTTP calls -> pool exhausted at 150 users. `saga.end_read()` before every
+     remote call; `_release` takes ids (re-reading an expired object would take a connection again); expiry job too.
+  2. Sync endpoints: FastAPI validates the response in a second threadpool step while the request-scoped session still
+     holds its connection -> circular wait, service frozen for minutes (seen in user-service). All DB routes now use
+     `Depends(get_db, scope="function")` (requires FastAPI >= 0.121, requirements bumped).
+  3. Pool wait 30 s > gateway timeout 20 s let dead requests pile up. `shared/db.py`: `pool_timeout=5`, pool sizes from
+     `DB_POOL_SIZE` / `DB_MAX_OVERFLOW`, `add_busy_handler(app)` -> 503 + Retry-After. `/health` is `async` everywhere so a
+     busy threadpool does not make Docker report the service unhealthy.
+  4. Parallel duplicates of one Idempotency-Key could get 409 (tuition RESERVED by their own twin). `initiate` re-checks
+     the key before answering 409.
+  5. payment-service CPU-bound (one GIL): `entrypoint.sh` honours `UVICORN_WORKERS`; payment-service runs 4
+     (`PAYMENT_WORKERS`, pool 5+10 each, `THREADPOOL_SIZE` 100 per process); MySQL `--max-connections=300`.
+     Its background workers were already replica-safe (SKIP LOCKED relay, conditional transitions).
+- **Final results**: small 50 / medium 150 / stress 300 users, 3 min each: 0 failed requests and all invariants pass
+  (a repeated stress run had 14 transient 502s out of 23,620 during the login ramp, self-healing). ~150 req/s ceiling;
+  gateway and tuition-service (one process each) are the next limits.
+- Not done: frontend e2e tests (`tests/e2e/` still empty); workers for gateway / tuition-service (recommended in the report).

@@ -1,0 +1,4 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /transactions/[id]/verify-otp,"CatchResponseError('502 {""detail"":""User service unavailable, try again""}')",4,2026-10-16T07:30:30Z,2026-10-16T07:30:30Z
+POST,POST /transactions,"CatchResponseError('502 {""detail"":""Tuition service unavailable, try again""}')",1,2026-10-16T07:33:07Z,2026-10-16T07:33:07Z
+POST,POST /transactions,"CatchResponseError('502 {""detail"":""User service unavailable, try again""}')",9,2026-10-16T07:30:30Z,2026-10-16T07:30:30Z

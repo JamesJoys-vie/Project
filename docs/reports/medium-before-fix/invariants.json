@@ -1,0 +1,48 @@
+{
+  "checked_at": "2026-10-16T06:15:13.935040Z",
+  "transactions": {
+    "PENDING_OTP": 25,
+    "SUCCESS": 161,
+    "EXPIRED": 63,
+    "PROCESSING": 13,
+    "FAILED": 5,
+    "CANCELLED": 3
+  },
+  "failed_reasons": {
+    "Tuition is already paid or being paid": 5
+  },
+  "ledger_entries": 174,
+  "net_debited": "389700000.00",
+  "tuition_paid_total": "389700000.00",
+  "tuitions_paid": 174,
+  "after_settle": {
+    "processing": 13,
+    "pending_otp": 25,
+    "unpublished_outbox": 1
+  },
+  "stale_holds_warning": 0,
+  "violations": {
+    "I4 PAID tuition without SUCCESS transaction": [
+      "1b143229-6e87-506a-b541-690df53b7bce (LTN00028) paid_by aee3bec9-385d-424b-b396-81400020c6d1: PROCESSING",
+      "1f524685-6a20-58fc-ba99-ef840222bd47 (LTN00083) paid_by bd68823e-5ae7-477d-8e31-44cd1ad40b3b: PROCESSING",
+      "327d6a82-9058-5866-a337-3ee02c3412a2 (LTN00047) paid_by a7de4eec-7439-4ac0-8e12-4bbed470683e: PROCESSING",
+      "3305f124-c00a-5147-b17c-86af77645d5a (LTN00067) paid_by 736d5455-2989-48fc-ac21-36950b838521: PROCESSING",
+      "4387572a-ceae-57db-9d3d-3faf2a197de7 (LTN00025) paid_by f31c1953-9310-4764-b8f7-c845faad6da4: PROCESSING",
+      "631e21c3-cd9e-58a8-aa79-82044de96ae0 (LTN00082) paid_by fc470629-c8f9-4dcb-bda3-c5699b89ec6a: PROCESSING",
+      "6ca9bfea-a189-5c98-9cd9-edef86e8564f (LTHOT002) paid_by 620e41a2-e909-4789-8036-fd0adaedfc61: PROCESSING",
+      "77b5e543-9192-5753-8b20-0897ef38c619 (LTHOT001) paid_by b94054c7-c47c-4c6d-904a-608d97b3d37a: PROCESSING",
+      "8635762c-c09b-5871-8840-f83714d28764 (LTN00044) paid_by fc3d2fdf-4cd4-4e9a-9ab2-63d9a67373ab: PROCESSING",
+      "aae9a162-ad5a-5401-8943-dc2b18b9f958 (LTN00084) paid_by 7f82fe6c-e88a-48b8-b9a0-fc993b5a6a14: PROCESSING",
+      "deb8aa12-2a39-5ce5-9c68-19d33e2d0cf0 (LTN00087) paid_by 19f035d6-f17e-480e-957e-c46cb5b3beb4: PROCESSING",
+      "e07e9075-8d3f-51fa-a23b-62be26b652ec (LTX00094) paid_by fdeeeb6c-55a6-447d-b7b8-e6cc3413da9d: PROCESSING",
+      "e9b6035c-5b04-529d-b13a-b0ea5a2e18df (LTN00039) paid_by c4d84cdc-ae79-41ca-849b-2910e34b82e8: PROCESSING"
+    ],
+    "I7 outbox event missing / duplicated / unpublished": [
+      "5577e1e3-6cf7-449b-a80f-3d8bc8da2b5a: published 0, pending 1"
+    ],
+    "I8 stuck transactions": [
+      "{'processing': 13, 'pending_otp': 25, 'unpublished_outbox': 1}"
+    ]
+  },
+  "passed": false
+}

@@ -1,0 +1,10 @@
+tuition-payment-loadtest-run-114727127154 34.74% 67.92MiB / 7.638GiB
+tuition-payment-gateway-1 103.08% 64.43MiB / 7.638GiB
+tuition-payment-payment-service-1 221.02% 503MiB / 7.638GiB
+tuition-payment-notification-service-1 8.94% 42.5MiB / 7.638GiB
+tuition-payment-tuition-service-1 113.27% 189.2MiB / 7.638GiB
+tuition-payment-otp-service-1 26.16% 46.09MiB / 7.638GiB
+tuition-payment-user-service-1 39.71% 115.6MiB / 7.638GiB
+tuition-payment-mysql-1 84.58% 570.8MiB / 7.638GiB
+tuition-payment-web-1 5.99% 17.66MiB / 7.638GiB
+tuition-payment-redis-1 8.03% 30.66MiB / 7.638GiB

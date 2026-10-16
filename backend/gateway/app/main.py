@@ -45,7 +45,7 @@ async def rate_limited(request: Request, path: str, user_id: str | None) -> int:
         try:
             async with rdb.pipeline(transaction=True) as p:
                 count, _ = await p.incr(key).expire(key, window, nx=True).execute()
-            if count > limit:
+            if count > limit * settings.rate_limit_multiplier:
                 return max(await rdb.ttl(key), 1)
         except Exception:
             log.exception("rate limiter unavailable; allowing request")
@@ -54,7 +54,7 @@ async def rate_limited(request: Request, path: str, user_id: str | None) -> int:
 
 
 @app.get("/health")
-def health():
+async def health():  # async: answered by the event loop even when the threadpool is saturated
     return {"status": "ok", "service": "gateway"}
 
 

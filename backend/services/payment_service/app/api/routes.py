@@ -19,7 +19,7 @@ def _out(t: Transaction) -> TransactionOut:
 
 
 @router.get("/accounts/me", response_model=AccountOut, responses={404: {"description": "No account"}})
-def my_account(x_user_id: str = Header(...), db: Session = Depends(get_db)):
+def my_account(x_user_id: str = Header(...), db: Session = Depends(get_db, scope="function")):
     balance = db.scalar(select(Account.balance).where(Account.user_id == x_user_id))
     if balance is None:
         raise HTTPException(404, "No payment account for this user")
@@ -27,7 +27,7 @@ def my_account(x_user_id: str = Header(...), db: Session = Depends(get_db)):
 
 
 @router.get("/transactions", response_model=list[TransactionOut])
-def history(x_user_id: str = Header(...), db: Session = Depends(get_db)):
+def history(x_user_id: str = Header(...), db: Session = Depends(get_db, scope="function")):
     """Transaction history of the authenticated user (newest first)."""
     rows = db.scalars(select(Transaction).where(Transaction.payer_user_id == x_user_id)
                       .order_by(Transaction.created_at.desc(), Transaction.id).limit(HISTORY_LIMIT)).all()
@@ -39,7 +39,7 @@ def history(x_user_id: str = Header(...), db: Session = Depends(get_db)):
                         409: {"description": "Tuition already paid/reserved"},
                         422: {"description": "Insufficient balance"}, 502: {"description": "Dependency down"}})
 def initiate(body: InitiateTransactionRequest, x_user_id: str = Header(...),
-             idempotency_key: str = Header(..., alias="Idempotency-Key"), db: Session = Depends(get_db)):
+             idempotency_key: str = Header(..., alias="Idempotency-Key"), db: Session = Depends(get_db, scope="function")):
     """SAGA step 1: reserve the tuition, create a PENDING_OTP transaction, email an OTP.
     Re-sending the same Idempotency-Key returns the original transaction without side effects."""
     return _out(saga.initiate(db, x_user_id, idempotency_key, body.student_id))
@@ -48,7 +48,7 @@ def initiate(body: InitiateTransactionRequest, x_user_id: str = Header(...),
 @router.post("/transactions/{transaction_id}/verify-otp", response_model=TransactionResult,
              responses={400: {"description": "Invalid/expired OTP"}, 404: {"description": "Not found"},
                         409: {"description": "Conflict"}, 410: {"description": "Transaction expired"}})
-def verify_otp(transaction_id: str, body: VerifyOtpRequest, x_user_id: str = Header(...), db: Session = Depends(get_db)):
+def verify_otp(transaction_id: str, body: VerifyOtpRequest, x_user_id: str = Header(...), db: Session = Depends(get_db, scope="function")):
     """SAGA step 2: verify OTP, debit, mark the tuition paid. Business outcomes come back as 200 with the
     transaction status: SUCCESS, FAILED (e.g. insufficient balance, see failure_reason) or PROCESSING (finishing)."""
     t = saga.verify(db, x_user_id, transaction_id, body.otp)
@@ -56,7 +56,7 @@ def verify_otp(transaction_id: str, body: VerifyOtpRequest, x_user_id: str = Hea
 
 
 @router.get("/transactions/{transaction_id}", response_model=TransactionOut, responses={404: {"description": "Not found"}})
-def get_transaction(transaction_id: str, x_user_id: str = Header(...), db: Session = Depends(get_db)):
+def get_transaction(transaction_id: str, x_user_id: str = Header(...), db: Session = Depends(get_db, scope="function")):
     """Poll a single transaction (e.g. while it is PROCESSING, or to resume a PENDING_OTP one)."""
     return _out(saga.get_owned(db, transaction_id, x_user_id))
 
@@ -64,13 +64,13 @@ def get_transaction(transaction_id: str, x_user_id: str = Header(...), db: Sessi
 @router.post("/transactions/{transaction_id}/resend-otp", response_model=ResendOtpResult,
              responses={404: {"description": "Not found"}, 409: {"description": "Not waiting for OTP"},
                         410: {"description": "Transaction expired"}, 429: {"description": "Too many requests"}})
-def resend_otp(transaction_id: str, x_user_id: str = Header(...), db: Session = Depends(get_db)):
+def resend_otp(transaction_id: str, x_user_id: str = Header(...), db: Session = Depends(get_db, scope="function")):
     """New OTP (the previous one stops working); the transaction's OTP window restarts."""
     return ResendOtpResult(otp_expires_in=saga.resend_otp(db, x_user_id, transaction_id))
 
 
 @router.post("/transactions/{transaction_id}/cancel", response_model=TransactionOut,
              responses={404: {"description": "Not found"}, 409: {"description": "Not cancellable"}})
-def cancel(transaction_id: str, x_user_id: str = Header(...), db: Session = Depends(get_db)):
+def cancel(transaction_id: str, x_user_id: str = Header(...), db: Session = Depends(get_db, scope="function")):
     """Cancel a PENDING_OTP transaction and release the tuition reservation."""
     return _out(saga.cancel(db, x_user_id, transaction_id))

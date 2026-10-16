@@ -1,4 +1,4 @@
-fastapi>=0.115,<1.0
+fastapi>=0.121,<1.0  # 0.121: Depends(..., scope="function")
 uvicorn[standard]>=0.30
 sqlalchemy>=2.0,<2.1
 pymysql>=1.1

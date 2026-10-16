@@ -1,6 +1,8 @@
 import logging
 import threading
+import anyio.to_thread
 from fastapi import FastAPI
+from shared.db import add_busy_handler
 from shared.redis_client import get_redis
 from app.api.routes import router
 from app.core.config import settings
@@ -11,7 +13,14 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(nam
 
 app = FastAPI(title="Payment Service", version="0.1.0")
 app.include_router(router)
+add_busy_handler(app)
 _stop = threading.Event()
+
+
+@app.on_event("startup")
+async def size_threadpool():
+    """Threads for sync endpoints (anyio default 40). Must run on the event loop, hence async."""
+    anyio.to_thread.current_default_thread_limiter().total_tokens = settings.threadpool_size
 
 
 @app.on_event("startup")
@@ -29,5 +38,5 @@ def stop_workers():
 
 
 @app.get("/health")
-def health():
+async def health():  # async: answered by the event loop even when the threadpool is saturated
     return {"status": "ok", "service": "payment-service"}
