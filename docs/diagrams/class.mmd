@@ -7,7 +7,7 @@ classDiagram
   class OtpClient { +issue(txnId); +verify(txnId, code) }
   class OutboxPublisher { +publish(event) }
   Account "1" --> "*" Transaction
-  Transaction "1" --> "0..1" LedgerEntry
+  Transaction "1" --> "0..2" LedgerEntry : DEBIT, refund CREDIT
   PaymentSaga --> Account
   PaymentSaga --> Transaction
   PaymentSaga --> TuitionClient
