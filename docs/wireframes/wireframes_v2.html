@@ -1,0 +1,1676 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iBanking - Proposed Next-Gen Wireframes (v2)</title>
+<style>
+  /* Low-fidelity wireframes v2: Strict grayscale with deliberate high-contrast accents & blue notes */
+  :root {
+    --bg: #f3f4f6;
+    --paper: #ffffff;
+    --ink: #111827;
+    --ink-2: #4b5563;
+    --ink-3: #9ca3af;
+    --line: #d1d5db;
+    --line-2: #e5e7eb;
+    --fill: #f3f4f6;
+    --fill-2: #e5e7eb;
+    --accent: #1f2937;
+    --accent-hover: #111827;
+    --note: #2563eb;
+    --note-bg: #eff6ff;
+    --note-line: #bfdbfe;
+    --radius: 8px;
+    --radius-lg: 12px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.05);
+    --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  a { color: inherit; }
+
+  /* ---------- Document Chrome & Navigation ---------- */
+  .doc-nav {
+    position: sticky; top: 0; z-index: 100; background: var(--paper);
+    border-bottom: 1px solid var(--line); padding: 10px 24px;
+    display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+    box-shadow: var(--shadow-sm);
+  }
+  .doc-nav .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; margin-right: 8px; }
+  .doc-nav .brand span { background: var(--ink); color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+  .doc-nav a { text-decoration: none; color: var(--ink-2); font-size: 13px; font-weight: 500; padding: 4px 8px; border-radius: 4px; transition: all 0.15s; }
+  .doc-nav a:hover, .doc-nav a.active { color: var(--ink); background: var(--fill); text-decoration: none; }
+  .doc-nav .doc-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; font-size: 12px; }
+
+  .doc { max-width: 1360px; margin: 0 auto; padding: 24px 20px; }
+  
+  /* Hero Banner */
+  .hero-proposal {
+    background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-lg);
+    padding: 24px 28px; margin-bottom: 32px; box-shadow: var(--shadow-sm);
+  }
+  .hero-proposal h1 { margin: 0 0 10px; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+  .hero-proposal p { margin: 0 0 16px; color: var(--ink-2); font-size: 14px; max-width: 840px; line-height: 1.6; }
+  
+  .comparison-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;
+    margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line-2);
+  }
+  .comp-item { background: var(--fill); padding: 12px 14px; border-radius: var(--radius); border: 1px solid var(--line-2); }
+  .comp-item strong { display: block; font-size: 13px; margin-bottom: 4px; color: var(--ink); }
+  .comp-item span { font-size: 12px; color: var(--ink-2); line-height: 1.4; display: block; }
+
+  /* Flow Diagram Strip */
+  .flow-strip {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; margin: 20px 0;
+    padding: 12px 16px; background: var(--fill); border-radius: var(--radius); border: 1px solid var(--line-2);
+  }
+  .flow-strip .node {
+    border: 1px solid var(--line); background: var(--paper); border-radius: 6px; padding: 6px 12px;
+    font-weight: 600; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .flow-strip .node.highlight { border-color: var(--note); color: var(--note); background: var(--note-bg); }
+  .flow-strip .arr { color: var(--ink-3); font-weight: bold; }
+
+  .legend-box { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--ink-2); margin-top: 12px; }
+  .legend-box span { display: inline-flex; align-items: center; gap: 6px; }
+
+  /* ---------- Screen Sections ---------- */
+  section.screen { margin: 44px 0 56px; scroll-margin-top: 80px; }
+  .screen-head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--line-2);
+  }
+  .screen-head .title-group { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .screen-head h2 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+  .route { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--fill); padding: 3px 8px; border-radius: 4px; color: var(--ink-2); border: 1px solid var(--line-2); }
+  .tag-new { font-size: 11px; font-weight: 700; text-transform: uppercase; background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 999px; }
+  .tag-improved { font-size: 11px; font-weight: 700; text-transform: uppercase; background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 999px; }
+
+  .screen-body { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 20px; align-items: start; }
+  @media (max-width: 1120px) { .screen-body { grid-template-columns: 1fr; } }
+
+  .notes-panel {
+    background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-lg);
+    padding: 16px 18px; font-size: 13px; position: sticky; top: 76px; box-shadow: var(--shadow-sm);
+  }
+  .notes-panel h3 { margin: 0 0 10px; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-2); font-weight: 700; }
+  .notes-panel ol { margin: 0; padding-left: 0; list-style: none; counter-reset: n; }
+  .notes-panel li { position: relative; padding-left: 28px; margin-bottom: 12px; counter-increment: n; line-height: 1.45; }
+  .notes-panel li::before {
+    content: counter(n); position: absolute; left: 0; top: 1px;
+    width: 18px; height: 18px; border-radius: 50%; background: var(--note); color: #fff;
+    font-size: 10px; font-weight: 700; display: grid; place-items: center;
+  }
+  .notes-panel code { font-size: 11px; background: var(--fill); padding: 1px 4px; border-radius: 4px; border: 1px solid var(--line-2); font-family: ui-monospace, monospace; }
+  .notes-panel .why-box {
+    margin-top: 14px; padding: 10px 12px; background: var(--note-bg); border-radius: var(--radius);
+    border: 1px solid var(--note-line); color: #1e3a8a; font-size: 12px; line-height: 1.4;
+  }
+  .notes-panel .why-box strong { display: block; margin-bottom: 3px; font-size: 12px; color: #172554; }
+
+  /* Numbered callout pin */
+  .pin {
+    display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%;
+    background: var(--note); color: #fff; font-size: 10px; font-weight: 700; flex: none;
+    box-shadow: 0 0 0 2px var(--paper); vertical-align: middle;
+  }
+  .pin.abs { position: absolute; top: -9px; left: -9px; z-index: 5; }
+
+  /* ---------- Browser Wireframe Container ---------- */
+  .browser { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); min-width: 0; }
+  .browser-bar { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: var(--fill); border-bottom: 1px solid var(--line); }
+  .dots { display: flex; gap: 5px; }
+  .dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); display: block; }
+  .browser-bar .tabs { display: flex; gap: 6px; margin: 0 8px; }
+  .browser-bar .tab { background: var(--paper); padding: 4px 10px; border-radius: 6px 6px 0 0; font-size: 11px; font-weight: 600; border: 1px solid var(--line); border-bottom: 0; color: var(--ink); }
+  .url { flex: 1; background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 3px 10px; font: 12px ui-monospace, Consolas, monospace; color: var(--ink-2); display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .url-lock { font-size: 10px; color: #166534; }
+  .viewport { position: relative; background: #fafaf9; min-height: 480px; overflow-x: hidden; }
+
+  /* ---------- App Shell ---------- */
+  .app-header { display: flex; align-items: center; gap: 18px; padding: 0 20px; height: 56px; background: var(--paper); border-bottom: 1px solid var(--line); position: relative; flex-wrap: wrap; }
+  .logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; }
+  .logo-mark { width: 26px; height: 26px; border-radius: 6px; border: 2px solid var(--ink); display: grid; place-items: center; font-size: 12px; font-weight: 800; }
+  .app-nav { display: flex; gap: 4px; flex-wrap: wrap; }
+  .app-nav span { padding: 5px 12px; border-radius: 6px; color: var(--ink-2); font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+  .app-nav span.active { background: var(--fill); color: var(--ink); font-weight: 700; border: 1px solid var(--line-2); }
+  .user-menu { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-2); flex-wrap: wrap; }
+  .avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--fill); border: 1px solid var(--line); display: grid; place-items: center; font-weight: 600; font-size: 11px; flex: none; }
+  .notif-bell { position: relative; width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--line); display: grid; place-items: center; cursor: pointer; flex: none; }
+  .notif-bell .dot { position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; border-radius: 50%; background: var(--ink); }
+
+  .app-main { padding: 24px 20px 36px; max-width: 1000px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+  .page-title { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; }
+  .page-title h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+  .page-title p { margin: 2px 0 0; color: var(--ink-2); font-size: 13px; }
+
+  /* ---------- Components & Grid ---------- */
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 18px; position: relative; box-shadow: var(--shadow-sm); min-width: 0; }
+  .card h4 { margin: 0 0 12px; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .card h4 small { font-weight: 400; color: var(--ink-3); font-size: 12px; }
+  
+  .grid-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .stack { display: grid; gap: 18px; }
+  @media (max-width: 860px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+  .grid-2 > *, .grid-3 > * { min-width: 0; }
+
+  /* Balance Impact Box (Payer Calculation) */
+  .balance-impact {
+    background: var(--fill); border: 1px solid var(--line-2); border-radius: 8px;
+    padding: 10px 12px; margin-top: 12px; display: grid; gap: 6px; font-size: 12px;
+  }
+  .bi-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .bi-row .lbl { color: var(--ink-2); white-space: nowrap; }
+  .bi-row .val { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; margin-left: auto; }
+  .bi-row.total {
+    border-top: 1px dashed var(--line); padding-top: 6px; margin-top: 2px;
+    font-size: 13px; font-weight: 700; color: var(--ink);
+  }
+
+  .stat .muted { font-size: 12px; font-weight: 500; color: var(--ink-2); }
+  .stat .big { font-size: 22px; font-weight: 800; margin: 4px 0 2px; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; word-break: break-word; }
+  .stat .sub { font-size: 12px; color: var(--ink-3); }
+  .stat .sub { font-size: 12px; color: var(--ink-3); }
+
+  /* Form Controls */
+  .field { margin-bottom: 14px; }
+  .label { font-size: 12px; font-weight: 600; color: var(--ink-2); margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
+  .input {
+    height: 38px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper);
+    display: flex; align-items: center; padding: 0 12px; color: var(--ink); font-size: 13px; gap: 10px; width: 100%;
+  }
+  .input.ro { background: var(--fill); border-color: var(--line-2); color: var(--ink-2); cursor: default; }
+  .input.focus { border: 2px solid var(--ink); }
+  .input.err { border: 1.5px solid #dc2626; background: #fef2f2; }
+  .help { font-size: 12px; color: var(--ink-3); margin-top: 5px; }
+
+  .btn {
+    height: 38px; padding: 0 18px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600; border: 1px solid var(--ink); background: var(--paper); color: var(--ink);
+    cursor: pointer; transition: all 0.15s; text-decoration: none;
+  }
+  .btn:hover { background: var(--fill); }
+  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn.primary:hover { background: var(--accent-hover); }
+  .btn.disabled { background: var(--fill); color: var(--ink-3); border-color: var(--line); cursor: not-allowed; }
+  .btn.ghost { border-color: transparent; color: var(--ink-2); background: transparent; }
+  .btn.ghost:hover { background: var(--fill); color: var(--ink); }
+  .btn.sm { height: 30px; padding: 0 12px; font-size: 12px; }
+  .btn.block { width: 100%; }
+  .btn-row { display: flex; gap: 10px; justify-content: flex-end; align-items: center; flex-wrap: wrap; }
+
+  /* Stepper */
+  .stepper { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--ink-3); }
+  .stepper .step { display: flex; align-items: center; gap: 6px; }
+  .stepper .num { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+  .stepper .step.on { color: var(--ink); font-weight: 700; }
+  .stepper .step.on .num { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .stepper .step.done .num { background: var(--line); color: var(--ink); }
+  .stepper .bar { width: 28px; height: 2px; background: var(--line); }
+
+  /* Chips & Badges */
+  .chip-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--paper); font-size: 12px; color: var(--ink-2); cursor: pointer;
+  }
+  .chip:hover { border-color: var(--ink); color: var(--ink); }
+  .chip.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--ink-2); color: var(--ink-2); }
+  .badge.solid { background: var(--ink-2); color: #fff; }
+  .badge.dashed { border-style: dashed; }
+  .badge.success { border-color: #166534; background: #dcfce7; color: #166534; }
+  .badge.pending { border-color: #854d0e; background: #fef9c3; color: #854d0e; }
+  .badge.alert { border-color: #991b1b; background: #fee2e2; color: #991b1b; }
+
+  /* Money & Privacy */
+  .money { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .hide-amounts .money { letter-spacing: .08em; color: var(--ink-2); }
+  .eye-btn {
+    width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--line); background: var(--paper);
+    color: var(--ink-2); display: inline-grid; place-items: center; padding: 0; cursor: pointer; vertical-align: middle;
+  }
+  .eye-btn:hover { border-color: var(--ink-2); color: var(--ink); }
+  .eye-btn .slash { display: none; }
+  .hide-amounts .eye-btn .slash { display: inline; }
+
+  /* Table */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 620px; }
+  th { text-align: left; font-size: 12px; font-weight: 700; color: var(--ink-2); padding: 10px 14px; background: var(--fill); border-bottom: 1px solid var(--line); }
+  td { padding: 12px 14px; border-bottom: 1px solid var(--line-2); }
+  tr:hover td { background: #fafaf9; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td.mono { font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
+
+  /* Urgent Action Banner */
+  .urgent-banner {
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius-lg);
+    padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    box-shadow: var(--shadow-sm); flex-wrap: wrap;
+  }
+  .urgent-banner .content { display: flex; align-items: center; gap: 12px; }
+  .urgent-banner .icon-badge {
+    width: 34px; height: 34px; border-radius: 50%; background: #fef3c7; border: 1px solid #f59e0b;
+    display: grid; place-items: center; font-weight: 700; color: #b45309; flex: none;
+  }
+  .urgent-banner h5 { margin: 0; font-size: 13px; font-weight: 700; color: #92400e; }
+  .urgent-banner p { margin: 2px 0 0; font-size: 12px; color: #b45309; }
+
+  /* Fee Breakdown Accordion / Card */
+  .breakdown-table { width: 100%; font-size: 12px; margin: 8px 0; border: 1px solid var(--line-2); border-radius: 6px; border-collapse: collapse; }
+  .breakdown-table tr td { padding: 6px 8px; line-height: 1.35; }
+  .breakdown-table tr td:first-child { width: 66%; color: var(--ink-2); }
+  .breakdown-table tr td:last-child { width: 34%; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .breakdown-table tr.total { background: var(--fill); font-weight: 700; font-size: 13px; border-top: 1px solid var(--line); color: var(--ink); }
+
+  /* OTP Modal & Overlay */
+  .dim-overlay { position: absolute; inset: 0; background: rgba(17, 24, 39, 0.55); backdrop-filter: blur(2px); display: grid; place-items: center; padding: 20px; z-index: 50; }
+  .modal-box { width: 100%; max-width: 440px; background: var(--paper); border-radius: var(--radius-lg); border: 1px solid var(--line); padding: 24px; position: relative; box-shadow: var(--shadow-lg); }
+  .modal-box .close-btn { position: absolute; top: 16px; right: 16px; width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--line); display: grid; place-items: center; font-size: 12px; color: var(--ink-2); cursor: pointer; }
+  .otp-grid { display: flex; gap: 10px; justify-content: center; margin: 20px 0 12px; }
+  .otp-digit { width: 46px; height: 54px; border: 1.5px solid var(--line); border-radius: 8px; display: grid; place-items: center; font-size: 22px; font-weight: 700; background: var(--paper); }
+  .otp-digit.active { border-color: var(--ink); box-shadow: 0 0 0 2px rgba(17,24,39,0.15); }
+
+  /* Drawer for Transaction Details */
+  .drawer-overlay { position: absolute; inset: 0; background: rgba(17, 24, 39, 0.4); display: flex; justify-content: flex-end; z-index: 60; }
+  .drawer-panel { width: 100%; max-width: 420px; background: var(--paper); height: 100%; border-left: 1px solid var(--line); padding: 24px; display: flex; flex-direction: column; box-shadow: var(--shadow-lg); overflow-y: auto; }
+
+  /* Audit Timeline */
+  .timeline { margin: 16px 0; padding-left: 18px; position: relative; border-left: 2px solid var(--line); }
+  .timeline-item { position: relative; margin-bottom: 16px; padding-left: 12px; }
+  .timeline-item::before { content: ""; position: absolute; left: -24px; top: 3px; width: 10px; height: 10px; border-radius: 50%; background: var(--ink); border: 2px solid var(--paper); }
+  .timeline-item.pending::before { background: var(--line); }
+  .timeline-item .t-time { font-size: 11px; color: var(--ink-3); }
+  .timeline-item .t-title { font-size: 12px; font-weight: 600; color: var(--ink); }
+
+  /* Print / Receipt Box */
+  .receipt-box { border: 2px dashed var(--line); border-radius: var(--radius-lg); padding: 24px; background: #fff; max-width: 520px; margin: 0 auto; }
+  .receipt-header { text-align: center; border-bottom: 1px solid var(--line-2); padding-bottom: 16px; margin-bottom: 16px; }
+  .receipt-logo { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+  .receipt-stamp { display: inline-block; border: 2px solid #166534; color: #166534; font-weight: 800; font-size: 12px; padding: 4px 12px; border-radius: 4px; text-transform: uppercase; margin: 12px 0 4px; transform: rotate(-3deg); }
+
+  /* Toolbars */
+  .toolbar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+  .toolbar .search { flex: 1; min-width: 220px; }
+  .filter-pill { font-size: 12px; border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; background: var(--paper); display: flex; align-items: center; gap: 6px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<!-- Global Documentation Sticky Bar -->
+<nav class="doc-nav">
+  <div class="brand">
+    <span>v2.0</span> iBanking Wireframe Evolution
+  </div>
+  <a href="#overview">Architecture & Flow</a>
+  <a href="#s-login">1. Login & Auth</a>
+  <a href="#s-home">2. Smart Dashboard</a>
+  <a href="#s-add-student">2b. Add Student Modal</a>
+  <a href="#s-beneficiaries">2c. Beneficiaries Hub</a>
+  <a href="#s-pay">3. Tuition Flow</a>
+  <a href="#s-lookup">3b. Lookups & Fallbacks</a>
+  <a href="#s-otp">4. OTP & Verification</a>
+  <a href="#s-receipt">5. Official Receipt</a>
+  <a href="#s-history">6. Audit & History</a>
+  <a href="#s-drawer">7. Detail Drawer</a>
+  <a href="#s-guard">8. Inactivity Guard</a>
+  <div class="doc-actions">
+    <span>Preview amounts: <b data-amount-state>shown</b></span>
+    <button type="button" class="eye-btn" data-toggle-amounts title="Show / hide amounts" aria-label="Show / hide amounts">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/><line class="slash" x1="3" y1="3" x2="21" y2="21"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<div class="doc">
+
+  <!-- Overview & Gap Analysis -->
+  <section class="hero-proposal" id="overview">
+    <h1>Proposed Wireframe System & Screen Flow (v2)</h1>
+    <p>
+      This document proposes an upgraded, production-grade wireframe architecture for <b>iBanking</b> based on the Phase 4 React/Tailwind frontend,
+      resolving critical operational friction points identified in the original wireframes (v1). While preserving the strict low-fidelity grayscale design language,
+      v2 elevates <b>financial transparency, student beneficiary reusability, transaction security, and multi-step recovery states</b>.
+    </p>
+
+    <div class="flow-strip">
+      <span class="node">1. /login <small>(Biometric/Remember)</small></span>
+      <span class="arr">&rarr;</span>
+      <span class="node">2. /home <small>(Smart Overview + Quick Pay)</small></span>
+      <span class="arr">&rarr;</span>
+      <span class="node highlight">3. /pay <small>(Itemized Breakdown + Beneficiary Picker)</small></span>
+      <span class="arr">&rarr;</span>
+      <span class="node highlight">4. OTP Modal <small>(Dual Channel + Safety Recap)</small></span>
+      <span class="arr">&rarr;</span>
+      <span class="node highlight">5. Official Receipt <small>(PDF/Print + Save Student)</small></span>
+      <span class="arr">&rarr;</span>
+      <span class="node highlight">6. /history <small>(Deep Drawer + Audit Trail)</small></span>
+    </div>
+
+    <div class="comparison-grid">
+      <div class="comp-item">
+        <strong>1. Beneficiary & Quick Pay Picker</strong>
+        <span>Replaces manual 8-digit MSSV retyping each semester with saved student profiles and recent chips.</span>
+      </div>
+      <div class="comp-item">
+        <strong>2. Transparent Fee Breakdown</strong>
+        <span>Itemizes raw tuition into Base Tuition, Campus/Lab fees, and Health Insurance for complete parental clarity.</span>
+      </div>
+      <div class="comp-item">
+        <strong>3. Slide-Over Audit Drawer</strong>
+        <span>Replaces dead table rows in History with an interactive slide-over showing the complete saga timeline (Reserve &rarr; OTP &rarr; Settle).</span>
+      </div>
+      <div class="comp-item">
+        <strong>4. Banking Inactivity Session Guard</strong>
+        <span>Essential security compliance for financial apps: 60-second warning dialog before token expiration.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SCREEN 1: LOGIN ================= -->
+  <section class="screen" id="s-login">
+    <div class="screen-head">
+      <div class="title-group">
+        <h2>1. Authentication & Security Onboarding</h2>
+        <span class="route">/login</span>
+        <span class="tag-improved">Enhanced</span>
+      </div>
+    </div>
+    <div class="screen-body">
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <div class="url"><span class="url-lock">&#128274;</span> ibanking.local/login</div>
+        </div>
+        <div class="viewport">
+          <div style="min-height: 480px; display: grid; place-items: center; padding: 36px 16px;">
+            <div class="card" style="width: 100%; max-width: 380px;">
+              <span class="pin abs">1</span>
+              <div style="text-align: center; margin-bottom: 20px;">
+                <div class="logo" style="justify-content: center; margin-bottom: 6px;">
+                  <span class="logo-mark">iB</span> iBanking
+                </div>
+                <div style="font-size: 13px; color: var(--ink-2)">National University Tuition Gateway</div>
+              </div>
+
+              <!-- Quick Demo Switcher -->
+              <div style="background: var(--fill); padding: 8px 12px; border-radius: 6px; margin-bottom: 16px; border: 1px solid var(--line-2);">
+                <div style="font-size: 11px; font-weight: 700; color: var(--ink-2); margin-bottom: 4px;">FAST SWITCH (DEMO ENV)</div>
+                <div class="chip-group" style="margin-top: 0;">
+                  <span class="chip active">alice (30M ₫)</span>
+                  <span class="chip">bob (5M ₫)</span>
+                  <span class="chip">carol (0 ₫)</span>
+                </div>
+              </div>
+
+              <div class="field">
+                <span class="label">Payer Account / Username</span>
+                <div class="input focus">
+                  <span style="color: var(--ink-3); font-size: 12px;">&#128100;</span> alice
+                </div>
+              </div>
+
+              <div class="field" style="position: relative;">
+                <span class="label">
+                  Password
+                  <a href="#" style="font-size: 11px; color: var(--ink-2); text-decoration: underline;">Forgot?</a>
+                </span>
+                <div class="input">
+                  <span style="color: var(--ink-3); font-size: 12px;">&#128272;</span> &bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;
+                  <span style="margin-left: auto; font-size: 11px; color: var(--ink-2); cursor: pointer;" class="link">Show</span>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center; justify-content: space-between; margin: 12px 0 16px; font-size: 12px;">
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                  <input type="checkbox" checked> Remember this device
+                </label>
+                <span style="color: var(--ink-3); font-size: 11px;">Protected by 256-bit TLS</span>
+              </div>
+
+              <button class="btn primary block" style="position: relative;">
+                <span class="pin abs" style="top: 8px; left: -10px;">2</span>
+                Sign In to Account
+              </button>
+
+              <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line-2); text-align: center;">
+                <button class="btn ghost sm" style="font-size: 12px; width: 100%;">
+                  &#128273; Sign in with Passkey / Biometrics
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="notes-panel">
+        <h3>Design Innovations</h3>
+        <ol>
+          <li><b>Fast Switch Chips for Evaluation:</b> Eliminates repetitive password typing during testing and demonstrations without breaking actual JWT auth under the hood.</li>
+          <li><b>Biometric / Passkey Stub:</b> Modern FIDO2 readiness for higher education portals.</li>
+          <li><b>Transparent Encryption & Remember Me:</b> Adheres to banking guidelines with explicit TLS badge and device trust persistence.</li>
+        </ol>
+        <div class="why-box">
+          <strong>Why this change?</strong>
+          In real academic payment scenarios, parents often use mobile devices under time pressure right before registration deadlines. Streamlined authentication minimizes drop-off.
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= SCREEN 2: HOME DASHBOARD ================= -->
+  <section class="screen" id="s-home">
+    <div class="screen-head">
+      <div class="title-group">
+        <h2>2. Action-Oriented Dashboard</h2>
+        <span class="route">/home</span>
+        <span class="tag-improved">Enhanced</span>
+      </div>
+    </div>
+    <div class="screen-body">
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <div class="url"><span class="url-lock">&#128274;</span> ibanking.local/home</div>
+        </div>
+        <div class="viewport">
+          <header class="app-header">
+            <div class="logo"><span class="logo-mark">iB</span> iBanking</div>
+            <nav class="app-nav">
+              <span class="active">Dashboard</span>
+              <span>Pay Tuition</span>
+              <span>History</span>
+              <span>Beneficiaries</span>
+            </nav>
+            <div class="user-menu">
+              <div class="notif-bell" title="Notifications">
+                <span style="font-size: 12px;">&#128276;</span>
+                <span class="dot"></span>
+              </div>
+              <button type="button" class="eye-btn" data-toggle-amounts title="Hide/Show amounts">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/><line class="slash" x1="3" y1="3" x2="21" y2="21"/>
+                </svg>
+              </button>
+              <div class="avatar">NA</div>
+              <span>Nguyen Van A</span>
+              <span class="btn ghost sm">Sign out</span>
+            </div>
+          </header>
+
+          <div class="app-main">
+            <!-- Urgent Pending OTP Banner -->
+            <div class="urgent-banner" style="position: relative; margin-bottom: 20px;">
+              <span class="pin abs">1</span>
+              <div class="content">
+                <div class="icon-badge">&#9200;</div>
+                <div>
+                  <h5>Uncompleted Payment Pending OTP Verification</h5>
+                  <p>Transaction for student <b>Pham Minh D (52100001)</b> &bull; Expires in <b>03:48</b></p>
+                </div>
+              </div>
+              <div class="btn-row">
+                <button class="btn sm ghost">Cancel</button>
+                <button class="btn sm primary">Resume Verification &rarr;</button>
+              </div>
+            </div>
+
+            <!-- Page Title & Primary Callout -->
+            <div class="page-title">
+              <div>
+                <h1>Accounts & Tuition Overview</h1>
+                <p>Track your student accounts, semester payments, and current balance.</p>
+              </div>
+              <a href="#s-pay" class="btn primary">&#43; Pay Tuition Fee</a>
+            </div>
+
+            <div class="stack">
+              <!-- Stat Cards Grid -->
+              <div class="grid-3">
+                <div class="card stat">
+                  <span class="pin abs">2</span>
+                  <div class="muted" style="display: flex; justify-content: space-between;">
+                    <span>Primary Account</span>
+                    <span class="badge">ACTIVE</span>
+                  </div>
+                  <div class="big"><span class="money">30,000,000 ₫</span></div>
+                  <div class="sub">Account No: <b>VN88-0091-2311</b></div>
+                </div>
+                <div class="card stat">
+                  <div class="muted">Paid This Academic Year</div>
+                  <div class="big">3 <span style="font-size: 14px; font-weight: 500; color: var(--ink-2)">tuitions</span></div>
+                  <div class="sub"><span class="money">45,500,000 ₫</span> total settled</div>
+                </div>
+                <div class="card stat">
+                  <div class="muted">Upcoming Tuition Invoices</div>
+                  <div class="big">1 <span style="font-size: 14px; font-weight: 500; color: #b45309">due soon</span></div>
+                  <div class="sub">Term 2025-HK1 &bull; Due Nov 15</div>
+                </div>
+              </div>
+
+              <!-- Quick Pay / Saved Beneficiaries Strip -->
+              <div class="card">
+                <span class="pin abs">3</span>
+                <h4>
+                  <span>Quick Pay & Saved Students</span>
+                  <small><a href="#s-pay" style="text-decoration: underline;">Manage Students (3)</a></small>
+                </h4>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                  <div style="border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; background: var(--fill); cursor: pointer;">
+                    <div class="avatar" style="background: var(--paper);">MD</div>
+                    <div>
+                      <div style="font-weight: 700; font-size: 13px;">Pham Minh D</div>
+                      <div style="font-size: 11px; color: var(--ink-3);">MSSV 52100001 &bull; Computer Science</div>
+                    </div>
+                    <span class="badge alert" style="margin-left: 8px;">UNPAID</span>
+                  </div>
+
+                  <div style="border: 1px solid var(--line-2); border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; opacity: 0.8; cursor: pointer;">
+                    <div class="avatar" style="background: var(--paper);">TE</div>
+                    <div>
+                      <div style="font-weight: 600; font-size: 13px;">Hoang Thu E</div>
+                      <div style="font-size: 11px; color: var(--ink-3);">MSSV 52100002 &bull; Software Engineering</div>
+                    </div>
+                    <span class="badge success" style="margin-left: 8px;">PAID</span>
+                  </div>
+
+                  <button class="btn sm ghost" style="border: 1px dashed var(--line); height: 52px; padding: 0 16px;">
+                    &#43; Add Student ID
+                  </button>
+                </div>
+              </div>
+
+              <!-- Recent Activity Card -->
+              <div class="card">
+                <span class="pin abs">4</span>
+                <h4>
+                  <span>Recent Payment Activity</span>
+                  <small><a href="#s-history" style="text-decoration: underline;">Full Statement &rarr;</a></small>
+                </h4>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Date & Time</th>
+                        <th>Student Name & MSSV</th>
+                        <th>Term</th>
+                        <th class="num">Amount Paid</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>18/10/2026 14:15</td>
+                        <td><b>Pham Minh D</b> (52100001)</td>
+                        <td>2025-HK1</td>
+                        <td class="num"><b><span class="money">15,000,000 ₫</span></b></td>
+                        <td><span class="badge pending">PENDING_OTP</span></td>
+                        <td><span class="link" style="font-size: 12px;">Resume</span></td>
+                      </tr>
+                      <tr>
+                        <td>12/10/2026 09:30</td>
+                        <td><b>Hoang Thu E</b> (52100002)</td>
+                        <td>2025-HK1</td>
+                        <td class="num"><span class="money">18,500,000 ₫</span></td>
+                        <td><span class="badge success">SUCCESS</span></td>
+                        <td><span class="link" style="font-size: 12px;">Receipt</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="notes-panel">
+        <h3>Key Enhancements</h3>
+        <ol>
+          <li><b>Prominent Sticky Urgent Banner:</b> Prevents abandoned locks and provides a 1-click resumption modal before the 5-minute Redis hold expires.</li>
+          <li><b>Account Identifier (IBAN-style):</b> Distinguishes the funding source for parents with multiple bank accounts.</li>
+          <li><b>Saved Beneficiaries Strip:</b> Solves the #1 user headache of re-typing 8-digit IDs; one click immediately initiates the tuition lookup.</li>
+          <li><b>Direct Row Receipt Shortcut:</b> Immediate access to generated PDF receipts directly from the dashboard.</li>
+        </ol>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= SCREEN 2B: ADD STUDENT BENEFICIARY ================= -->
+  <section class="screen" id="s-add-student">
+    <div class="screen-head">
+      <div class="title-group">
+        <h2>2b. Add Student Beneficiary (Modal Flow)</h2>
+        <span class="route">/home &middot; Modal Dialog</span>
+        <span class="tag-new">New View</span>
+      </div>
+    </div>
+    <div class="screen-body">
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <div class="url"><span class="url-lock">&#128274;</span> ibanking.local/home?action=add-student</div>
+        </div>
+        <div class="viewport" style="min-height: 560px;">
+          <!-- Dimmed Background Dashboard -->
+          <div style="filter: blur(1.5px) grayscale(0.5); opacity: 0.6; pointer-events: none; padding: 20px;">
+            <header class="app-header" style="border-radius: 8px;">
+              <div class="logo"><span class="logo-mark">iB</span> iBanking</div>
+              <nav class="app-nav"><span class="active">Dashboard</span><span>Pay Tuition</span></nav>
+            </header>
+            <div style="margin-top: 20px; display: grid; gap: 16px;">
+              <div class="card" style="height: 90px;"></div>
+              <div class="card" style="height: 120px;"></div>
+            </div>
+          </div>
+
+          <!-- Add Student Modal Overlay -->
+          <div class="dim-overlay">
+            <div class="modal-box" style="max-width: 480px;">
+              <span class="pin abs">1</span>
+              <div class="close-btn" title="Close">&#10005;</div>
+
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                <div style="width: 36px; height: 36px; border-radius: 8px; background: var(--fill); border: 1px solid var(--line); display: grid; place-items: center; font-size: 18px;">
+                  &#127891;
+                </div>
+                <div>
+                  <h3 style="margin: 0; font-size: 17px; font-weight: 700;">Add Student Beneficiary</h3>
+                  <div style="font-size: 12px; color: var(--ink-2);">Save student profile for one-click tuition lookup & payments</div>
+                </div>
+              </div>
+
+              <!-- Step 1: MSSV Input with live debounce -->
+              <div class="field">
+                <span class="label">
+                  <span>Student ID (MSSV)</span>
+                  <span style="font-size: 11px; color: #166534; font-weight: 600;">&#10003; 8-digit format</span>
+                </span>
+                <div class="input focus" style="position: relative;">
+                  <span style="color: var(--ink-3);">&#128269;</span>
+                  <span style="font-weight: 700;">52100004</span>
+                  <span style="margin-left: auto; font-size: 11px; background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 999px; font-weight: 700;">
+                    SIS MATCH
+                  </span>
+                </div>
+                <div class="help">Live query to university registrar system (<code>GET /tuitions/52100004</code>).</div>
+              </div>
+
+              <!-- Step 2: Live Verified Student Card -->
+              <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 14px; margin-bottom: 16px; position: relative;">
+                <span class="pin abs" style="top: -8px; left: -8px;">2</span>
+                <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="avatar" style="width: 38px; height: 38px; background: #e2e8f0; font-size: 14px; font-weight: 700; color: #1e293b;">
+                      TC
+                    </div>
+                    <div>
+                      <div style="font-size: 14px; font-weight: 800; color: var(--ink);">Tran Van C</div>
+                      <div style="font-size: 12px; color: var(--ink-2);">Faculty of Information Technology &bull; Year 3</div>
+                    </div>
+                  </div>
+                  <span class="badge success" style="font-size: 10px;">ENROLLED</span>
+                </div>
+
+                <div style="border-top: 1px dashed var(--line); padding-top: 8px; margin-top: 8px; font-size: 12px; display: flex; justify-content: space-between; align-items: center;">
+                  <span style="color: var(--ink-2);">Current Term (2025-HK1):</span>
+                  <span style="font-weight: 700; color: #b45309;"><span class="money">14,000,000 ₫</span> (UNPAID)</span>
+                </div>
+              </div>
+
+              <!-- Step 3: Customization (Nickname & Notifications) -->
+              <div class="field">
+                <span class="label">Relationship / Nickname (Optional)</span>
+                <div class="input">
+                  <span style="color: var(--ink-3);">&#127991;</span>
+                  <span>Son (Con trai)</span>
+                </div>
+                <!-- Quick Relationship Chips -->
+                <div class="chip-group" style="margin-top: 6px;">
+                  <span class="chip active">Son (Con trai)</span>
+                  <span class="chip">Daughter (Con gái)</span>
+                  <span class="chip">Self (Bản thân)</span>
+                  <span class="chip">Relative (Họ hàng)</span>
+                </div>
+              </div>
+
+              <div style="margin: 14px 0 18px; font-size: 12px; color: var(--ink-2); display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="notify-check" checked>
+                <label for="notify-check" style="cursor: pointer;">
+                  Notify my email when university posts new tuition fees for this student
+                </label>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="btn-row" style="position: relative;">
+                <span class="pin abs" style="top: -8px; left: -8px;">3</span>
+                <button class="btn ghost">Cancel</button>
+                <button class="btn">Save Student</button>
+                <button class="btn primary">&#43; Save & Pay Tuition Now</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="notes-panel">
+        <h3>"Add Student" UI Rationale</h3>
+        <ol>
+          <li><b>Modal Overlay:</b> Triggered by the <code>+ Add Student ID</code> button on Dashboard (or Checkout). The user never leaves their current context.</li>
+          <li><b>Instant Registrar Verification:</b> As soon as 8 digits are typed, it queries <code>GET /tuitions/{mssv}</code> and displays the student's legal name, faculty, and current tuition status. This guarantees the payer never saves a mistyped ID.</li>
+          <li><b>Relationship Tags:</b> Parents with multiple children can assign intuitive tags ("Son", "Daughter"), which render as avatars on the Dashboard.</li>
+          <li><b>Dual Action CTAs:</b> "Save Student" adds to the Quick Pay strip; "Save & Pay Tuition Now" saves and immediately routes to <code>/pay?mssv=52100004</code> with pre-filled details.</li>
+        </ol>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= SCREEN 2C: BENEFICIARIES HUB ================= -->
+  <section class="screen" id="s-beneficiaries">
+    <div class="screen-head">
+      <div class="title-group">
+        <h2>2c. Student Beneficiaries Hub (Family Tuition Directory)</h2>
+        <span class="route">/beneficiaries</span>
+        <span class="tag-new">New View</span>
+      </div>
+    </div>
+    <div class="screen-body">
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <div class="url"><span class="url-lock">&#128274;</span> ibanking.local/beneficiaries</div>
+        </div>
+        <div class="viewport">
+          <header class="app-header">
+            <div class="logo"><span class="logo-mark">iB</span> iBanking</div>
+            <nav class="app-nav">
+              <span>Dashboard</span>
+              <span>Pay Tuition</span>
+              <span>History</span>
+              <span class="active">Beneficiaries</span>
+            </nav>
+            <div class="user-menu">
+              <div class="avatar">NA</div>
+              <span>Nguyen Van A</span>
+            </div>
+          </header>
+
+          <div class="app-main">
+            <!-- Page Title & Add Button -->
+            <div class="page-title">
+              <div>
+                <h1>Student Beneficiaries</h1>
+                <p>Manage family student profiles, monitor active invoices, and track academic payments.</p>
+              </div>
+              <a href="#s-add-student" class="btn primary">&#43; Add Student Beneficiary</a>
+            </div>
+
+            <div class="stack">
+              <!-- Summary Strip -->
+              <div class="grid-3">
+                <div class="card stat">
+                  <span class="pin abs">1</span>
+                  <div class="muted">Saved Students</div>
+                  <div class="big">3 <span style="font-size: 14px; font-weight: 500; color: var(--ink-2)">active</span></div>
+                  <div class="sub">National University Students</div>
+                </div>
+                <div class="card stat">
+                  <div class="muted">Current Term Invoices Due</div>
+                  <div class="big" style="color: #b45309;">1 <span style="font-size: 14px; font-weight: 500;">unpaid</span></div>
+                  <div class="sub"><span class="money">15,000,000 ₫</span> pending settlement</div>
+                </div>
+                <div class="card stat">
+                  <div class="muted">All-Time Family Tuition Paid</div>
+                  <div class="big"><span class="money">79,000,000 ₫</span></div>
+                  <div class="sub">5 total semesters cleared</div>
+                </div>
+              </div>
+
+              <!-- Student Cards Grid -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                
+                <!-- Beneficiary Card 1: Unpaid -->
+                <div class="card" style="border-top: 3px solid #dc2626;">
+                  <span class="pin abs">2</span>
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <div class="avatar" style="width: 42px; height: 42px; font-size: 15px; font-weight: 700; background: var(--fill);">
+                        MD
+                      </div>
+                      <div>
+                        <div style="font-weight: 800; font-size: 15px;">Pham Minh D</div>
+                        <div style="font-size: 12px; color: var(--ink-2);">Son (Con trai) &bull; Year 4</div>
+                      </div>
+                    </div>
+                    <span class="badge alert">UNPAID</span>
+                  </div>
+
+                  <div style="font-size: 12px; color: var(--ink-2); line-height: 1.5; margin-bottom: 14px; background: var(--fill); padding: 10px 12px; border-radius: 6px;">
+                    <div>MSSV: <b>52100001</b></div>
+                    <div>Faculty: Computer Science</div>
+                    <div style="border-top: 1px dashed var(--line); margin-top: 6px; padding-top: 6px; display: flex; justify-content: space-between;">
+                      <span>Term 2025-HK1 Due:</span>
+                      <b style="color: #991b1b;"><span class="money">15,000,000 ₫</span></b>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; gap: 8px;">
+                    <a href="#s-pay" class="btn primary sm" style="flex: 1; text-align: center;">Pay Tuition &rarr;</a>
+                    <button class="btn sm ghost" title="Options">&#8942;</button>
+                  </div>
+                </div>
+
+                <!-- Beneficiary Card 2: Paid -->
+                <div class="card" style="border-top: 3px solid #166534;">
+                  <span class="pin abs">3</span>
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <div class="avatar" style="width: 42px; height: 42px; font-size: 15px; font-weight: 700; background: var(--fill);">
+                        TE
+                      </div>
+                      <div>
+                        <div style="font-weight: 800; font-size: 15px;">Hoang Thu E</div>
+                        <div style="font-size: 12px; color: var(--ink-2);">Daughter (Con gái) &bull; Year 2</div>
+                      </div>
+                    </div>
+                    <span class="badge success">PAID</span>
+                  </div>
+
+                  <div style="font-size: 12px; color: var(--ink-2); line-height: 1.5; margin-bottom: 14px; background: var(--fill); padding: 10px 12px; border-radius: 6px;">
+                    <div>MSSV: <b>52100002</b></div>
+                    <div>Faculty: Software Engineering</div>
+                    <div style="border-top: 1px dashed var(--line); margin-top: 6px; padding-top: 6px; display: flex; justify-content: space-between;">
+                      <span>Term 2025-HK1:</span>
+                      <b style="color: #166534;">Settled (<span class="money">18,500,000 ₫</span>)</b>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; gap: 8px;">
+                    <a href="#s-receipt" class="btn sm" style="flex: 1; text-align: center;">View Receipt</a>
+                    <button class="btn sm ghost" title="Options">&#8942;</button>
+                  </div>
+                </div>
+
+                <!-- Beneficiary Card 3: Paid -->
+                <div class="card" style="border-top: 3px solid #166534;">
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <div class="avatar" style="width: 42px; height: 42px; font-size: 15px; font-weight: 700; background: var(--fill);">
+                        TC
+                      </div>
+                      <div>
+                        <div style="font-weight: 800; font-size: 15px;">Tran Van C</div>
+                        <div style="font-size: 12px; color: var(--ink-2);">Nephew (Cháu) &bull; Year 3</div>
+                      </div>
+                    </div>
+                    <span class="badge success">PAID</span>
+                  </div>
+
+                  <div style="font-size: 12px; color: var(--ink-2); line-height: 1.5; margin-bottom: 14px; background: var(--fill); padding: 10px 12px; border-radius: 6px;">
+                    <div>MSSV: <b>52100004</b></div>
+                    <div>Faculty: Information Technology</div>
+                    <div style="border-top: 1px dashed var(--line); margin-top: 6px; padding-top: 6px; display: flex; justify-content: space-between;">
+                      <span>Term 2025-HK1:</span>
+                      <b style="color: #166534;">Settled (<span class="money">14,000,000 ₫</span>)</b>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; gap: 8px;">
+                    <a href="#s-receipt" class="btn sm" style="flex: 1; text-align: center;">View Receipt</a>
+                    <button class="btn sm ghost" title="Options">&#8942;</button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="notes-panel">
+        <h3>"Beneficiaries" Purpose & Value</h3>
+        <ol>
+          <li><b>Family Hub:</b> Gives parents a single centralized screen to manage all children/dependents attending university over multiple academic years.</li>
+          <li><b>Live Semester Synchronizer:</b> Integrates with <code>GET /tuitions/{mssv}</code> to continuously poll and display unpaid vs paid status per student.</li>
+          <li><b>Direct One-Click Checkout:</b> Clicking "Pay Tuition &rarr;" opens <code>/pay?mssv=52100001</code> with student data pre-populated, skipping manual lookups.</li>
+          <li><b>Profile Lifecycle & Archiving:</b> Three-dot menu (&#8942;) enables editing nicknames, configuring notification thresholds, and archiving graduated students.</li>
+        </ol>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= SCREEN 3: TUITION PAYMENT ================= -->
+  <section class="screen" id="s-pay">
+    <div class="screen-head">
+      <div class="title-group">
+        <h2>3. High-Transparency Tuition Checkout</h2>
+        <span class="route">/pay</span>
+        <span class="tag-improved">Enhanced</span>
+      </div>
+    </div>
+    <div class="screen-body">
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <div class="url"><span class="url-lock">&#128274;</span> ibanking.local/pay</div>
+        </div>
+        <div class="viewport">
+          <header class="app-header">
+            <div class="logo"><span class="logo-mark">iB</span> iBanking</div>
+            <nav class="app-nav">
+              <span>Dashboard</span>
+              <span class="active">Pay Tuition</span>
+              <span>History</span>
+            </nav>
+            <div class="user-menu">
+              <button type="button" class="eye-btn" data-toggle-amounts>
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/><line class="slash" x1="3" y1="3" x2="21" y2="21"/></svg>
+              </button>
+              <div class="avatar">NA</div>
+              <span>Nguyen Van A</span>
+            </div>
+          </header>
+
+          <div class="app-main">
+            <!-- Stepper -->
+            <div class="page-title">
+              <div>
+                <h1>Tuition Payment Checkout</h1>
+                <p>Review payer balance, verify student fee invoices, and authorize transfer.</p>
+              </div>
+              <div class="stepper">
+                <span class="step on"><span class="num">1</span>Invoice</span>
+                <span class="bar"></span>
+                <span class="step"><span class="num">2</span>OTP Verify</span>
+                <span class="bar"></span>
+                <span class="step"><span class="num">3</span>Result</span>
+              </div>
+            </div>
+
+            <div class="stack">
+              <div class="grid-2">
+                <!-- Left: Payer & Balance Impact -->
+                <div class="card">
+                  <span class="pin abs">2</span>
+                  <h4>
+                    <span>Payer Account &amp; Balance</span>
+                    <span class="badge" style="font-weight: 600; font-size: 10px;">VERIFIED</span>
+                  </h4>
+                  <div class="field">
+                    <span class="label">Payer Legal Name</span>
+                    <div class="input ro">Nguyen Van A</div>
+                  </div>
+                  <div class="field">
+                    <span class="label">Registered Email</span>
+                    <div class="input ro">alice@example.com (0900 000 001)</div>
+                  </div>
+
+                  <!-- Balance & Impact Gauge -->
+                  <div class="balance-impact">
+                    <div class="bi-row">
+                      <span class="lbl">Available Balance:</span>
+                      <span class="val"><span class="money">30,000,000 ₫</span></span>
+                    </div>
+                    <div class="bi-row">
+                      <span class="lbl">Tuition Deduction:</span>
+                      <span class="val" style="color: #991b1b;">&minus; <span class="money">15,000,000 ₫</span></span>
+                    </div>
+                    <div class="bi-row total">
+                      <span class="lbl">Balance After Payment:</span>
+                      <span class="val" style="color: #166534;"><span class="money">15,000,000 ₫</span></span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right: Student Invoice Details with Itemized Breakdown -->
+                <div class="card">
+                  <span class="pin abs">3</span>
+                  <h4>
+                    <span>Student Invoice Lookup</span>
+                    <span class="badge" style="font-weight: 600; font-size: 10px;">SIS LIVE</span>
+                  </h4>
+
+                  <!-- Beneficiary Quick Picker -->
+                  <div style="margin-bottom: 10px;">
+                    <span class="label">Quick-Pick Beneficiary</span>
+                    <div class="chip-group" style="margin-top: 2px;">
+                      <span class="chip active">Pham Minh D (52100001)</span>
+                      <span class="chip">Hoang Thu E (52100002)</span>
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <span class="label">Student ID (MSSV)</span>
+                    <div class="input focus" style="position: relative;">
+                      <span style="color: var(--ink-3);">&#127891;</span>
+                      <span style="font-weight: 700;">52100001</span>
+                      <span class="badge success" style="margin-left: auto; font-size: 10px;">INVOICE READY</span>
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <span class="label">Student &amp; Major</span>
+                    <div class="input ro">Pham Minh D &bull; Software Engineering</div>
+                  </div>
+
+                  <!-- Itemized Tuition Breakdown -->
+                  <div>
+                    <span class="label">Tuition Breakdown (Term 2025-HK1)</span>
+                    <table class="breakdown-table">
+                      <tr>
+                        <td>Course Tuition (18 Credits)</td>
+                        <td><span class="money">12,500,000 ₫</span></td>
+                      </tr>
+                      <tr>
+                        <td>Lab &amp; Tech Surcharge</td>
+                        <td><span class="money">1,500,000 ₫</span></td>
+                      </tr>
+                      <tr>
+                        <td>Compulsory Health Insurance</td>
+                        <td><span class="money">1,000,000 ₫</span></td>
+                      </tr>
+                      <tr class="total">
+                        <td>Total Amount Payable</td>
+                        <td><span class="money">15,000,000 ₫</span></td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bottom Confirmation & Legal Terms Card -->
+              <div class="card">
+                <span class="pin abs">4</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap;">
+                  <div style="max-width: 580px;">
+                    <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 13px;">
+                      <input type="checkbox" checked style="margin-top: 2px;">
+                      <span>
+                        I authorize <b>iBanking</b> to debit <b>15,000,000 ₫</b> from my primary account and acknowledge the
+                        <a href="#" style="text-decoration: underline;">Electronic Tuition Payment Terms & Refund Policy</a>.
+                      </span>
+                    </label>
+                  </div>
+                  <div class="btn-row">
+                    <button class="btn ghost">Cancel & Back</button>
+                    <button class="btn primary" style="font-size: 14px; padding: 0 24px;">
+                      Confirm & Send OTP Code &rarr;
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="notes-panel">
+        <h3>Architectural Improvements</h3>
+        <ol>
+          <li><b>Integrated Beneficiary Quick-Chips:</b> Allows toggling between family members with 1 click without manually clearing inputs.</li>
+          <li><b>Itemized Fee Breakdown:</b> Transparent table rendering credit tuition vs compulsory insurance eliminates university dispute tickets.</li>
+          <li><b>Live Balance Projection Widget:</b> Clear arithmetic visualization of balance impact before triggering server-side locks.</li>
+          <li><b>Idempotent Submission:</b> Form generates an `Idempotency-Key` preventing duplicate charges during network flakiness.</li>
+        </ol>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= SCREEN 3B: LOOKUP STATES ================= -->
+  <section class="screen" id="s-lookup">
+    <div class="screen-head">
+      <div class="title-group">
+        <h2>3b. Resilience & Edge-Case Lookup States</h2>
+        <span class="route">/pay &middot; Real-world validation</span>
+        <span class="tag-improved">Enhanced</span>
+      </div>
+    </div>
+    <div class="screen-body">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px;">
+        
+        <!-- State 1: 404 Not Found -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <span class="badge alert">404 NOT FOUND</span>
+            <span style="font-weight: 700; font-size: 13px;">Unknown Student ID</span>
+          </div>
+          <div class="field">
+            <span class="label">Student ID (MSSV)</span>
+            <div class="input err">52199999</div>
+          </div>
+          <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 12px; font-size: 12px; color: #991b1b; margin-bottom: 14px; line-height: 1.5;">
+            <b>Notice:</b> The student ID may be incorrect, or no tuition invoice was found for this term.
+          </div>
+          <div style="font-size: 12px; color: var(--ink-2); line-height: 1.4; margin-bottom: 16px;">
+            &bull; Verify 8-digit MSSV on student ID card<br>
+            &bull; Contact Registrar if you believe this is an error
+          </div>
+          <button class="btn disabled block">Confirm Transaction</button>
+        </div>
+
+        <!-- State 2: 409 Already Paid -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <span class="badge success">409 ALREADY PAID</span>
+            <span style="font-weight: 700; font-size: 13px;">Tuition Settled</span>
+          </div>
+          <div class="field">
+            <span class="label">Student ID (MSSV)</span>
+            <div class="input ro">52100003 &bull; Vo Quoc F</div>
+          </div>
+          <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 12px; font-size: 12px; color: #166534; margin-bottom: 14px; line-height: 1.5;">
+            <b>Tuition already paid!</b> This student's tuition was paid on <b>10/10/2026</b>. There is no outstanding balance for this term.
+          </div>
+          <button class="btn disabled block">Confirm Transaction</button>
+        </div>
+
+        <!-- State 3: 422 Insufficient Balance -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <span class="badge alert">422 INSUFFICIENT BALANCE</span>
+            <span style="font-weight: 700; font-size: 13px;">Low Funds</span>
+          </div>
+          <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 12px; font-size: 12px; color: #92400e; margin-bottom: 14px; line-height: 1.6;">
+            Available Balance: <b><span class="money">5,000,000 ₫</span></b><br>
+            Tuition Invoice: <b><span class="money">25,000,000 ₫</span></b>
+          </div>
+          <button class="btn primary block" style="margin-bottom: 8px;">
+            &#43; Top Up Account via Napas / QR
+          </button>
+          <button class="btn disabled block">Confirm Transaction</button>
+        </div>
+
+        <!-- State 4: 423 Pending Concurrent Hold -->
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <span class="badge pending">423 RESERVATION HOLD</span>
+            <span style="font-weight: 700; font-size: 13px;">Payment in Progress</span>
+          </div>
+          <div style="background: #fefce8; border: 1px solid #fef08a; border-radius: 6px; padding: 12px; font-size: 12px; color: #854d0e; margin-bottom: 14px;">
+            Another payment session currently holds a temporary lock on this tuition. Hold automatically releases in <b>02:15</b>.
+          </div>
+          <button class="btn block sm">Refresh Lock Status</button>
+        </div>
+      </div>
+
+      <aside class="notes-panel">
+        <h3>User Friction Prevention</h3>
+        <ol>
+          <li><b>Gentle 404 Messaging:</b> Avoids alarming technical database jargon; prompts user to check 8-digit format or check if term invoices are posted yet.</li>
+          <li><b>Privacy-Preserving 409:</b> Confirms payment date without leaking third-party reference numbers or receipts that may belong to another sponsor.</li>
+          <li><b>Discreet Balance Alert (422):</b> States available funds and invoice total without negative "shortfall" callouts.</li>
+          <li><b>Concurrent Lock Awareness:</b> Explains Redis distributed reservation holds so parents do not accidentally double-pay.</li>
+        </ol>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= SCREEN 4: OTP MODAL ================= -->
+  <section class="screen" id="s-otp">
+    <div class="screen-head">
+      <div class="title-group">
+        <h2>4. High-Trust Multi-Option OTP Verification</h2>
+        <span class="route">/pay &middot; Security Modal</span>
+        <span class="tag-improved">Enhanced</span>
+      </div>
+    </div>
+    <div class="screen-body">
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <div class="url"><span class="url-lock">&#128274;</span> ibanking.local/pay (Authorizing)</div>
+        </div>
+        <div class="viewport" style="min-height: 520px;">
+          <!-- Dim Backdrop -->
+          <div class="dim-overlay">
+            <div class="modal-box">
+              <span class="pin abs">1</span>
+              <div class="close-btn" title="Cancel payment">&#10005;</div>
+
+              <div style="text-align: center; margin-bottom: 16px;">
+                <div style="font-size: 18px; font-weight: 700; margin-bottom: 4px;">Two-Factor Authorization</div>
+                <div style="font-size: 13px; color: var(--ink-2)">
+                  Authorizing tuition transfer for <b style="color: var(--ink)">Pham Minh D</b>
+                </div>
+              </div>
+
+              <!-- Transaction Security Recap -->
+              <div style="background: var(--fill); border: 1px solid var(--line-2); border-radius: 8px; padding: 10px 14px; margin-bottom: 18px;">
+                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 2px;">
+                  <span style="color: var(--ink-2)">MSSV: <b>52100001</b></span>
+                  <span>Amount: <b><span class="money">15,000,000 ₫</span></b></span>
+                </div>
+                <div style="font-size: 11px; color: var(--ink-3);">
+                  Channel: Code dispatched to <b>a****@example.com</b>
+                </div>
+              </div>
+
+              <!-- 6-Digit Auto Advance Box -->
+              <div class="otp-grid">
+                <span class="pin abs" style="top: -12px; left: 10px;">2</span>
+                <div class="otp-digit">4</div>
+                <div class="otp-digit">8</div>
+                <div class="otp-digit">1</div>
+                <div class="otp-digit active">9</div>
+                <div class="otp-digit"></div>
+                <div class="otp-digit"></div>
+              </div>
+
+              <!-- Countdown & Attempts Left -->
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin: 16px 0;">
+                <div>
+                  <span style="color: var(--ink-2)">Expires in:</span>
+                  <span style="font-family: monospace; font-weight: 700; background: var(--fill); padding: 2px 6px; border-radius: 4px;">
+                    03:42
+                  </span>
+                </div>
+                <div>
+                  <span class="link off" style="color: var(--ink-3); font-size: 12px;">Resend code in (0:28)</span>
+                </div>
+              </div>
+
+              <!-- Warning for failed attempts -->
+              <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 8px 12px; font-size: 12px; color: #991b1b; display: flex; align-items: center; gap: 8px; margin-bottom: 18px;">
+                <span>&#9888;</span> Incorrect code entered. 2 attempts remaining before lock.
+              </div>
+
+              <div class="btn-row" style="margin-top: 10px;">
+                <button class="btn ghost">Abort Payment</button>
+                <button class="btn primary" style="flex: 1;">Verify & Authorize Transfer</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="notes-panel">
+        <h3>Verification Enhancements</h3>
+        <ol>
+          <li><b>Explicit Security Recap:</b> Displays the exact recipient MSSV and amount inside the modal so payers avoid MITM phishing.</li>
+          <li><b>Auto-Paste & Advance:</b> Automatically parses 6-digit clipboard strings and shifts focus seamlessly across input blocks.</li>
+          <li><b>Rate Limiting & Safety Gauge:</b> Clearly enumerates remaining attempts to prevent unexpected account lockouts.</li>
+        </ol>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= SCREEN 5: RECEIPT & RESULT ================= -->
+  <section class="screen" id="s-receipt">
+    <div class="screen-head">
+      <div class="title-group">
+        <h2>5. Official Transaction Receipt & Settlement</h2>
+        <span class="route">/pay &middot; Success / Receipt</span>
+        <span class="tag-improved">Enhanced</span>
+      </div>
+    </div>
+    <div class="screen-body">
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <div class="url"><span class="url-lock">&#128274;</span> ibanking.local/pay/receipt</div>
+        </div>
+        <div class="viewport">
+          <header class="app-header">
+            <div class="logo"><span class="logo-mark">iB</span> iBanking</div>
+            <nav class="app-nav"><span>Dashboard</span><span class="active">Pay Tuition</span><span>History</span></nav>
+            <div class="user-menu"><div class="avatar">NA</div><span>Nguyen Van A</span></div>
+          </header>
+
+          <div class="app-main">
+            <div class="receipt-box" style="position: relative;">
+              <span class="pin abs">1</span>
+              <div class="receipt-header">
+                <div class="receipt-logo">iBanking &bull; Payment Receipt</div>
+                <div style="font-size: 12px; color: var(--ink-2); margin-top: 2px;">National University Bursar & Tuition Collection System</div>
+                <div><span class="receipt-stamp">&#10003; PAYMENT CONFIRMED</span></div>
+              </div>
+
+              <dl style="display: grid; grid-template-columns: 140px 1fr; gap: 10px 14px; font-size: 13px; margin: 0 0 20px;">
+                <dt style="color: var(--ink-3);">Transaction Ref</dt>
+                <dd style="margin: 0; font-family: monospace; font-weight: 700;">TXN-7F3A-8812-C21E</dd>
+
+                <dt style="color: var(--ink-3);">Settlement Time</dt>
+                <dd style="margin: 0;">18/10/2026 14:32:05 GMT+7</dd>
+
+                <dt style="color: var(--ink-3);">Student ID (MSSV)</dt>
+                <dd style="margin: 0; font-weight: 600;">52100001 &bull; Pham Minh D</dd>
+
+                <dt style="color: var(--ink-3);">Academic Term</dt>
+                <dd style="margin: 0;">2025-HK1 (First Semester)</dd>
+
+                <dt style="color: var(--ink-3);">Amount Paid</dt>
+                <dd style="margin: 0; font-size: 16px; font-weight: 800;"><span class="money">15,000,000 ₫</span></dd>
+
+                <dt style="color: var(--ink-3);">Payer Account</dt>
+                <dd style="margin: 0;">Nguyen Van A (alice)</dd>
+
+                <dt style="color: var(--ink-3);">New Balance</dt>
+                <dd style="margin: 0; font-weight: 600;"><span class="money">15,000,000 ₫</span></dd>
+              </dl>
+
+              <!-- Quick Beneficiary Save Prompt -->
+              <div style="background: var(--fill); border: 1px solid var(--line-2); border-radius: 6px; padding: 10px 12px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="font-size: 12px;">
+                  <b>Save Student ID?</b> Add 52100001 to your quick beneficiaries.
+                </div>
+                <button class="btn sm">Save Student</button>
+              </div>
+
+              <div class="btn-row" style="justify-content: center;">
+                <button class="btn">&#128424; Print Receipt</button>
+                <button class="btn">&#128190; Download Official PDF</button>
+                <button class="btn primary">Return to Dashboard</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="notes-panel">
+        <h3>Receipt Innovations</h3>
+        <ol>
+          <li><b>Standardized Bank Receipt Format:</b> Features reference UUID, tax stamp, and detailed student metadata acceptable for company tuition reimbursements.</li>
+          <li><b>Post-Payment Beneficiary Prompt:</b> Encourages 1-click student bookmarking for future semesters.</li>
+          <li><b>Instant Print & PDF Archival:</b> Native browser print layout styling and offline storage.</li>
+        </ol>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= SCREEN 6: ADVANCED HISTORY ================= -->
+  <section class="screen" id="s-history">
+    <div class="screen-head">
+      <div class="title-group">
+        <h2>6. Comprehensive History & Audit Reporting</h2>
+        <span class="route">/history</span>
+        <span class="tag-improved">Enhanced</span>
+      </div>
+    </div>
+    <div class="screen-body">
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <div class="url"><span class="url-lock">&#128274;</span> ibanking.local/history</div>
+        </div>
+        <div class="viewport">
+          <header class="app-header">
+            <div class="logo"><span class="logo-mark">iB</span> iBanking</div>
+            <nav class="app-nav">
+              <span>Dashboard</span>
+              <span>Pay Tuition</span>
+              <span class="active">History</span>
+            </nav>
+            <div class="user-menu"><div class="avatar">NA</div><span>Nguyen Van A</span></div>
+          </header>
+
+          <div class="app-main">
+            <div class="page-title">
+              <div>
+                <h1>Tuition Settlement Records</h1>
+                <p>Filter, inspect audit logs, and export official statement records.</p>
+              </div>
+              <div class="btn-row">
+                <button class="btn sm">&#128196; Export CSV</button>
+                <button class="btn sm primary">&#128196; Download Annual Statement</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <!-- Filter Toolbar -->
+              <div class="toolbar">
+                <span class="pin abs">1</span>
+                <div class="input search">
+                  <span>&#128269;</span>
+                  <span style="color: var(--ink-3);">Search by MSSV, Student Name, or Ref ID...</span>
+                </div>
+                <div class="filter-pill">
+                  <span>Status: <b>All Statuses</b></span> &#9662;
+                </div>
+                <div class="filter-pill">
+                  <span>Date Range: <b>2025 - 2026 Academic Year</b></span> &#9662;
+                </div>
+              </div>
+
+              <!-- Table with Interactive Row Click Hint -->
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Reference ID</th>
+                      <th>Student</th>
+                      <th>Term</th>
+                      <th class="num">Amount</th>
+                      <th>Status</th>
+                      <th>Audit</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style="cursor: pointer; background: #fafaf9;" title="Click to view full timeline">
+                      <td>18/10/2026 14:32</td>
+                      <td class="mono">TXN-7F3A&hellip;</td>
+                      <td><b>Pham Minh D</b> (52100001)</td>
+                      <td>2025-HK1</td>
+                      <td class="num"><b><span class="money">15,000,000 ₫</span></b></td>
+                      <td><span class="badge success">SUCCESS</span></td>
+                      <td><span class="btn sm ghost" style="padding: 0 8px;">View &rarr;</span></td>
+                    </tr>
+                    <tr style="cursor: pointer;">
+                      <td>18/10/2026 14:20</td>
+                      <td class="mono">TXN-A91B&hellip;</td>
+                      <td><b>Pham Minh D</b> (52100001)</td>
+                      <td>2025-HK1</td>
+                      <td class="num"><span class="money">15,000,000 ₫</span></td>
+                      <td><span class="badge dashed">EXPIRED</span></td>
+                      <td><span class="btn sm ghost" style="padding: 0 8px;">View &rarr;</span></td>
+                    </tr>
+                    <tr style="cursor: pointer;">
+                      <td>08/10/2026 09:05</td>
+                      <td class="mono">TXN-3C7D&hellip;</td>
+                      <td><b>Hoang Thu E</b> (52100002)</td>
+                      <td>2024-HK2</td>
+                      <td class="num"><span class="money">18,500,000 ₫</span></td>
+                      <td><span class="badge success">SUCCESS</span></td>
+                      <td><span class="btn sm ghost" style="padding: 0 8px;">View &rarr;</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Pager -->
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; font-size: 12px; color: var(--ink-2);">
+                <span>Showing 1&ndash;3 of 3 transactions</span>
+                <div style="display: flex; gap: 4px;">
+                  <button class="btn sm disabled">&lsaquo;</button>
+                  <button class="btn sm primary">1</button>
+                  <button class="btn sm disabled">&rsaquo;</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="notes-panel">
+        <h3>Audit & Tax Compliance</h3>
+        <ol>
+          <li><b>Academic Year Filter:</b> Parents require tax and tuition receipts organized by educational semester and fiscal year.</li>
+          <li><b>CSV & Statement Export:</b> Direct spreadsheet export capabilities for enterprise reimbursement and accounting.</li>
+        </ol>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= SCREEN 7: SLIDE-OVER TRANSACTION DRAWER ================= -->
+  <section class="screen" id="s-drawer">
+    <div class="screen-head">
+      <div class="title-group">
+        <h2>7. Transaction Lifecycle & Saga Audit Drawer</h2>
+        <span class="route">/history &middot; Slide-Over Inspection</span>
+        <span class="tag-new">New View</span>
+      </div>
+    </div>
+    <div class="screen-body">
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <div class="url"><span class="url-lock">&#128274;</span> ibanking.local/history?inspect=TXN-7F3A</div>
+        </div>
+        <div class="viewport" style="min-height: 520px;">
+          <div class="drawer-overlay">
+            <div class="drawer-panel">
+              <span class="pin abs">1</span>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <span class="badge success">SETTLED & CONFIRMED</span>
+                <span style="cursor: pointer; font-size: 14px; font-weight: 700;">&#10005;</span>
+              </div>
+
+              <h3 style="margin: 0 0 4px; font-size: 18px;">Transaction Details</h3>
+              <div style="font-size: 12px; color: var(--ink-3); margin-bottom: 16px; font-family: monospace;">
+                ID: 7f3a8b29-91cd-40a1-9a72-c21ef890
+              </div>
+
+              <div style="background: var(--fill); padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                <div style="font-size: 12px; color: var(--ink-2);">Total Transferred</div>
+                <div style="font-size: 22px; font-weight: 800; margin: 2px 0;"><span class="money">15,000,000 ₫</span></div>
+                <div style="font-size: 11px; color: var(--ink-3);">Debited from account alice &bull; Tuition fully cleared</div>
+              </div>
+
+              <div style="font-size: 13px; font-weight: 700; margin-bottom: 8px;">Microservice Saga Audit Trail</div>
+              
+              <!-- Saga Step Timeline -->
+              <div class="timeline">
+                <div class="timeline-item">
+                  <div class="t-time">14:30:02 &bull; API Gateway</div>
+                  <div class="t-title">Idempotency Checked & Txn Created</div>
+                </div>
+                <div class="timeline-item">
+                  <div class="t-time">14:30:03 &bull; Tuition-Service</div>
+                  <div class="t-title">Tuition Reserved (Status RESERVED)</div>
+                </div>
+                <div class="timeline-item">
+                  <div class="t-time">14:30:05 &bull; OTP-Service</div>
+                  <div class="t-title">OTP Dispatched to alice@example.com</div>
+                </div>
+                <div class="timeline-item">
+                  <div class="t-time">14:32:00 &bull; OTP-Service</div>
+                  <div class="t-title">OTP Verified via Atomic Lua Script</div>
+                </div>
+                <div class="timeline-item">
+                  <div class="t-time">14:32:01 &bull; Payment-Service</div>
+                  <div class="t-title">Ledger Debited 15,000,000 ₫</div>
+                </div>
+                <div class="timeline-item">
+                  <div class="t-time">14:32:04 &bull; Tuition-Service</div>
+                  <div class="t-title">Tuition Committed (Status PAID)</div>
+                </div>
+                <div class="timeline-item">
+                  <div class="t-time">14:32:05 &bull; Notification-Service</div>
+                  <div class="t-title">Receipt Outbox Stream Published</div>
+                </div>
+              </div>
+
+              <div style="margin-top: auto; padding-top: 16px; border-top: 1px solid var(--line-2); display: flex; gap: 8px;">
+                <button class="btn sm primary" style="flex: 1;">Download PDF</button>
+                <button class="btn sm">Copy Txn ID</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="notes-panel">
+        <h3>Backend Saga Observability</h3>
+        <ol>
+          <li><b>End-to-End Microservice Audit:</b> Shows the exact distributed saga steps (Gateway &rarr; Tuition Reserve &rarr; OTP Lua verification &rarr; Debit Ledger &rarr; Outbox).</li>
+          <li><b>Instant Support Escalation:</b> If a payment encounters an edge-case discrepancy, support personnel and users share the exact timestamped event log.</li>
+        </ol>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= SCREEN 8: INACTIVITY GUARD ================= -->
+  <section class="screen" id="s-guard">
+    <div class="screen-head">
+      <div class="title-group">
+        <h2>8. Banking Inactivity Session Guard</h2>
+        <span class="route">Global &middot; Security Protocol</span>
+        <span class="tag-new">New View</span>
+      </div>
+    </div>
+    <div class="screen-body">
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <div class="url"><span class="url-lock">&#128274;</span> ibanking.local (Session Alert)</div>
+        </div>
+        <div class="viewport" style="min-height: 440px;">
+          <div class="dim-overlay">
+            <div class="modal-box" style="text-align: center; max-width: 400px;">
+              <span class="pin abs">1</span>
+              <div style="width: 50px; height: 50px; border-radius: 50%; background: #fef3c7; border: 2px solid #f59e0b; display: grid; place-items: center; font-size: 22px; margin: 0 auto 14px;">
+                &#9203;
+              </div>
+              <h3 style="margin: 0 0 6px; font-size: 18px;">Are you still there?</h3>
+              <p style="font-size: 13px; color: var(--ink-2); margin: 0 0 16px; line-height: 1.5;">
+                For your account security, banking sessions expire automatically after 15 minutes of inactivity.
+              </p>
+              <div style="font-size: 13px; font-weight: 700; margin-bottom: 20px;">
+                Signing out in <span style="font-family: monospace; font-size: 16px; color: #dc2626; background: var(--fill); padding: 2px 8px; border-radius: 4px;">00:54</span>
+              </div>
+              <div class="btn-row" style="justify-content: center;">
+                <button class="btn">Sign Out Now</button>
+                <button class="btn primary">Stay Signed In</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="notes-panel">
+        <h3>Compliance & Data Protection</h3>
+        <ol>
+          <li><b>Session Timeout Standard:</b> Required by electronic banking regulations to protect family shared computers and campus lab terminals.</li>
+          <li><b>Token Refresh Interceptor:</b> Clicking "Stay Signed In" silently issues a refresh token request to reset the idle timer.</li>
+        </ol>
+      </aside>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // Amount Masking Toggle Demo
+  (function () {
+    const MASK = '•••••••• ₫';
+    const moneys = document.querySelectorAll('.money');
+    moneys.forEach(el => { el.dataset.v = el.textContent; });
+    let hidden = false;
+    function render() {
+      document.body.classList.toggle('hide-amounts', hidden);
+      moneys.forEach(el => {
+        el.textContent = hidden ? MASK : el.dataset.v;
+        if (hidden) el.setAttribute('aria-label', 'Amount hidden'); else el.removeAttribute('aria-label');
+      });
+      document.querySelectorAll('[data-amount-state]').forEach(el => { el.textContent = hidden ? 'hidden' : 'shown'; });
+    }
+    document.addEventListener('click', e => {
+      if (e.target.closest('[data-toggle-amounts]')) { hidden = !hidden; render(); }
+    });
+    render();
+  })();
+</script>
+</body>
+</html>
