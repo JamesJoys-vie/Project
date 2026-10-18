@@ -3,7 +3,7 @@
 Running record of what was generated and why. Newest entries at the bottom.
 
 > Sections 1-6 describe the first scaffold and are kept as history: RabbitMQ was replaced by Redis Streams (section 7),
-> the 501 stubs were implemented in Phase 3 (section 10), and migration 0002 changed the ledger key (section 10).
+> the 501 stubs were implemented in Phase 3 (section 9), and migration 0002 changed the ledger key (section 9).
 > Current design: `docs/design/services.md`, `docs/api/endpoints.md`, `docs/diagrams/`.
 
 ## 1. Infrastructure
@@ -25,7 +25,7 @@ Running record of what was generated and why. Newest entries at the bottom.
 
 ## 3. Services (backend/services/*)
 All expose `GET /health` on port 8000. Business endpoints are **typed stubs returning 501** with a TODO describing the exact logic to implement.
-*(Superseded: all stubs implemented in section 10; ledger key now `(transaction_id, type)`, see section 10.)*
+*(Superseded: all stubs implemented in section 9; ledger key now `(transaction_id, type)`, see section 9.)*
 - **user_service** (`users_db`): model `users`; stubs `POST /auth/login`, `GET /users/me`; migration 0001.
 - **tuition_service** (`tuition_db`): models `students`, `tuitions` (status UNPAID/RESERVED/PAID, `version`, `reserved_until`);
   stubs `GET /tuitions/{mssv}` + internal `reserve / commit / release`; migration 0001.
@@ -42,7 +42,7 @@ All expose `GET /health` on port 8000. Business endpoints are **typed stubs retu
 ## 4. Gateway and frontend
 - **gateway** (`backend/gateway`): FastAPI reverse proxy. Routes `/api/{auth,users}` -> user, `/api/tuitions` -> tuition,
   `/api/{accounts,transactions}` -> payment. Verifies the JWT (except `POST /api/auth/login`), strips any client-sent
-  `X-User-Id` and injects the verified one. OTP/notification services are not routed (internal only). Rate limiting is a TODO *(done in section 10)*.
+  `X-User-Id` and injects the verified one. OTP/notification services are not routed (internal only). Rate limiting is a TODO *(done in section 9)*.
 - **frontend** (React + JavaScript + Vite, Tailwind v4, React Query, React Hook Form, React Router):
   routing, auth context (token in sessionStorage), API client with all endpoint helpers, working Login form,
   placeholder Tuition Payment / History pages with TODO notes describing the exact UI flow.
@@ -64,12 +64,16 @@ no CRLF line endings in scripts/config.
 `docker compose build/up`, the FastAPI apps actually starting, Alembic migrations against a real MySQL, and `npm install` / `vite build`.
 First real run is on your machine: see README "Run". If a build fails, send me the error output.
 
-## Next phase (not started)
-1. user-service login + `/users/me`; tuition lookup; `/accounts/me`
-2. OTP service (Redis) + notification consumer enabled
-3. Payment saga (initiate / verify-otp), outbox relay, expiry job, deadlock retry
-4. Frontend payment flow + OTP modal
-5. Locust/k6 concurrency tests (same account; same student)
+## Planned phases (written at scaffold time, all done since)
+1. user-service login + `/users/me`; tuition lookup; `/accounts/me` - done in section 9
+2. OTP service (Redis) + notification consumer enabled - done in section 9
+3. Payment saga (initiate / verify-otp), outbox relay, expiry job, deadlock retry - done in section 9
+4. Frontend payment flow + OTP modal - wireframes in section 8, implemented in section 10
+5. Locust/k6 concurrency tests (same account; same student) - done with Locust + pytest in section 12
+
+Still open (as of 2026-10-18): unit tests for user / tuition / payment / notification services (only otp-service has
+them); frontend e2e tests (`tests/e2e/` empty); more uvicorn workers for gateway and tuition-service (see
+`docs/reports/LOAD_TEST_REPORT.md` section 6); dead-letter handling in `shared/events.py`; History row details.
 
 ## 7. Switch to "MySQL + Redis only" (RabbitMQ removed)
 Why: fewer containers; Redis was already required for OTPs, and Redis Streams provide durable, acknowledged,
@@ -110,7 +114,7 @@ Note: entries in sections 1-6 above that mention RabbitMQ describe the earlier s
   `AmountVisibility` context + `EyeToggle`. Visual privacy only, values are still in API responses. The wireframe page has a
   working preview switch in its top bar.
 
-## 10. Phase 3 - backend business logic
+## 9. Phase 3 - backend business logic
 All 501 stubs replaced. Branch `phase-3-backend`.
 - **user-service**: `POST /auth/login` (bcrypt; unknown usernames still pay one bcrypt check so timing does not leak
   which usernames exist), `GET /users/me`, new internal `GET /internal/users/{id}` (payer email/name for emails).
@@ -154,7 +158,7 @@ All 501 stubs replaced. Branch `phase-3-backend`.
   expiry (`OTP_TTL_SECONDS=20`: PENDING_OTP -> EXPIRED, tuition back to UNPAID, verify -> 410);
   login rate limit (11th attempt -> 429 + Retry-After).
 
-## 11. Phase 4 - frontend payment flow
+## 10. Phase 4 - frontend payment flow
 Phase 3 committed first (`d45c50a`). All placeholder pages replaced, following `docs/wireframes/wireframes.html`.
 - **Shell / routing**: `AppLayout` (logo, Home / Pay tuition / History nav, eye toggle, user name, Sign out) wraps every
   protected route; new `/home` is the landing page and the catch-all target. A 401 on any call except login signs the

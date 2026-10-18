@@ -25,7 +25,7 @@ First time? Follow the step-by-step guide in [INSTRUCTION.md](INSTRUCTION.md).
 5. Public demo: set `NGROK_AUTHTOKEN` + `NGROK_DOMAIN` in `.env`, then `docker compose --profile public up -d`.
 
 Status: backend (Phase 3), frontend payment flow (Phase 4) and load / concurrency tests (Phase 5) implemented.
-See `docs/SCAFFOLD_LOG.md` sections 10-12. Frontend dev server: `npm --prefix frontend run dev` (http://localhost:5173).
+See `docs/SCAFFOLD_LOG.md` sections 9-12. Frontend dev server: `npm --prefix frontend run dev` (http://localhost:5173).
 Without SMTP settings in `.env`, emails (incl. OTPs) are printed by `docker compose logs notification-service`.
 
 ## Load and concurrency tests (Phase 5)
