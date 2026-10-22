@@ -23,6 +23,8 @@ First time? Follow the step-by-step guide in [INSTRUCTION.md](INSTRUCTION.md).
 3. `docker compose --profile tools run --rm seed`
 4. Open http://localhost:8080 (demo logins alice/bob/carol, password `Password123!`)
 5. Public demo: set `NGROK_AUTHTOKEN` + `NGROK_DOMAIN` in `.env`, then `docker compose --profile public up -d`.
+6. `docker compose down`
+
 
 Status: backend (Phase 3), frontend payment flow (Phase 4) and load / concurrency tests (Phase 5) implemented.
 See `docs/SCAFFOLD_LOG.md` sections 9-12. Frontend dev server: `npm --prefix frontend run dev` (http://localhost:5173).
